@@ -4,13 +4,71 @@ import random
 
 from FCM import FCM
 
+def selectDataset (id):
+  if id == 1:
+    dataset = pd.read_csv("./datasets/iris.txt", sep=",", header=None)
+    dataset.columns = ['A', 'B', 'C', 'D', 'E']
+    dataset_unlabeled = dataset.drop('E', axis=1)
+    dataset_ref = dataset["E"].tolist() 
+    dataset_unlabeled = dataset_unlabeled.to_numpy()
+    nClusters = 3
+    return [dataset_unlabeled, dataset_ref, nClusters]
+  elif id == 2:
+    dataset = pd.read_csv("./datasets/glass.txt", sep=",", header=None)
+    dataset.columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+    dataset_unlabeled = dataset.drop(['A', 'K'], axis=1)
+    dataset_ref = dataset["K"].tolist() 
+    dataset_unlabeled = dataset_unlabeled.to_numpy()
+    nClusters = 6
+    return [dataset_unlabeled, dataset_ref, nClusters]
+  elif id == 3:
+      n1 = 5;
+      n2 = 5;
+      n3 = 5;
+      n = n1+n2+n3;		
+      nClusters = 3;
+      mu_11 = 0
+      mu_12 = 16
+      mu_21 = -8
+      mu_22 = 8
+      mu_31 = -16
+      mu_32 = -5
+      sigma_11 = pow(6, 0.5)
+      sigma_12 = pow(6, 0.5)
+      sigma_21 = pow(13, 0.5)
+      sigma_22 = pow(13, 0.5)
+      sigma_31 = pow(20, 0.5)
+      sigma_32 = pow(20, 0.5)
+
+      x1 = np.random.normal(mu_11, sigma_11, n1);
+      y1 = np.random.normal(mu_12, sigma_12, n1);
+      x2 = np.random.normal(mu_21, sigma_21, n2);
+      y2 = np.random.normal(mu_22, sigma_22, n2);
+      x3 = np.random.normal(mu_31, sigma_31, n3);
+      y3 = np.random.normal(mu_32, sigma_32, n3);
+
+      class1 = np.column_stack((x1, y1))
+      class2 = np.column_stack((x2, y2))
+      class3 = np.column_stack((x3, y3))
+
+      synthetic = np.vstack((class1, class2, class3))
+
+      refClass1 = np.repeat(1, n1)
+      refClass2 = np.repeat(2, n2)
+      refClass3 = np.repeat(3, n3)
+      ref = np.concatenate((refClass1, refClass2, refClass3))
+
+      return [synthetic, ref, nClusters]
+
+
+
 def experiment(dataset, mc, nRep, nClusters):
   nObj = len(dataset)
-  print('nObj: ', nObj)
-  print('nClusters: ', nClusters)
+  print(f'Monte carlo: {mc}')
+  print(f'Num de Objetos: {nObj}')
+  print(f'Num de Clusters: {nClusters}')
 
   centersAll = np.zeros((nRep, nClusters))
-
   for i in range(nRep):
     centersAll[i] = random.sample(range(1, nObj), nClusters)
 
@@ -33,19 +91,14 @@ def experiment(dataset, mc, nRep, nClusters):
       partMin = L_resp
     
   print('Jmin: ', J)
-  print('Matriz: ', L_resp)
+  print('Matriz: ', partMin)
 
 
-dataset = pd.read_csv("iris.txt", sep=",")
-dataset.columns = ['A', 'B', 'C', 'D', 'E']
- 
-dataset_unlabeled = dataset.drop('E', axis=1)
-dataset_ref = dataset["E"].tolist()
-# print(dataset_ref)
- 
-dataset_unlabeled = dataset_unlabeled.to_numpy()
-# print(dataset_unlabeled)
+data = selectDataset(3)
+unlabeled = data[0]
+reference = data[1]
+numClusters = data[2]
 
-# nObj = len(dataset_unlabeled)
+experiment(unlabeled, 1, 100, numClusters)
 
-experiment(dataset_unlabeled, 1, 100, 3)
+# print('\n',reference)

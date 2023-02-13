@@ -1,27 +1,24 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import random
 
 from FCM import FCM
 
 def experiment(dataset, mc, nRep, nClusters):
   nObj = len(dataset)
-  # print('nObj: ', nObj)
-  # print('nClusters: ', nClusters)
 
   centersAll = np.zeros((nRep, nClusters))
 
   for i in range(nRep):
     centersAll[i] = random.sample(range(1, nObj), nClusters)
 
-  # print(centersAll)
-
   Jmin = 2147483647     # int_max do R
   partMin = 0
 
   for i in range(nRep):
     centers = list(map(int, centersAll[i,].tolist()))
-    # print(f'Rep({i}) - Centros: {centers}')
+    
     resp = FCM(dataset, centers, 2)
 
     J = resp[0]
@@ -32,14 +29,16 @@ def experiment(dataset, mc, nRep, nClusters):
       Jmin = J
       partMin = L_resp
     
-  print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
+  # print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
+  
+  return [J, L_resp]
 
 
 def selectDataset(id):
 	if id == 1:
 		# Iris
 		
-		dataset = pd.read_csv("PIBIC/iris.txt", sep=",", header=None)
+		dataset = pd.read_csv("datasets/iris.txt", sep=",", header=None)
 		dataset_ref = dataset.iloc[:,-1].tolist()
 
 		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
@@ -47,7 +46,7 @@ def selectDataset(id):
 			
 		nClusters = 3
 		
-		return [dataset_unlabeled, dataset_ref, nClusters]
+		return [dataset_unlabeled, dataset_ref, nClusters, "Iris Dataset"]
 	elif id == 2:
 		# Glass
 
@@ -61,7 +60,7 @@ def selectDataset(id):
 		
 		nClusters = 6
 		
-		return [dataset_unlabeled, dataset_ref, nClusters]
+		return [dataset_unlabeled, dataset_ref, nClusters, "Glass Dataset"]
 	elif id == 3:
 		# Dataset Sintético
 
@@ -112,13 +111,25 @@ def selectDataset(id):
 		
 		ref = np.concatenate((refClass1, refClass2, refClass3))
 
-		return [synthetic, ref, nClusters]
+		return [synthetic, ref, nClusters, "Dataset Sintético"]
 
 
 # definindo a função main no python
 if __name__ == "__main__":
-	params = selectDataset(1)
+	params = selectDataset(3)
 	mc = 50
 	nRep = 100
 
-	experiment(params[0], 50, 100, params[2])
+	result = experiment(params[0], 50, 100, params[2])
+
+	# Plotando os resultados
+	dataset = params[0]
+	L = result[1]
+
+	x_axis = dataset[:, 0]  
+	y_axis = dataset[:, 1]
+
+	plt.scatter(x_axis, y_axis, c=L)
+	plt.title("FCM - " + params[3])
+
+	plt.show()  

@@ -1,37 +1,43 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score
+from sklearn.metrics.cluster import adjusted_rand_score
 import random
 
 from FCM import FCM
 
 def experiment(dataset, mc, nRep, nClusters):
-  nObj = len(dataset)
+	exec_time = 0
 
-  centersAll = np.zeros((nRep, nClusters))
+	nObj = len(dataset)
 
-  for i in range(nRep):
-    centersAll[i] = random.sample(range(1, nObj), nClusters)
+	centersAll = np.zeros((nRep, nClusters))
 
-  Jmin = 2147483647     # int_max do R
-  partMin = 0
+	for i in range(nRep):
+		centersAll[i] = random.sample(range(1, nObj), nClusters)
 
-  for i in range(nRep):
-    centers = list(map(int, centersAll[i,].tolist()))
-    
-    resp = FCM(dataset, centers, 2)
+	Jmin = 2147483647     # int_max do R
+	partMin = 0
 
-    J = resp[0]
-    L_resp = resp[1]
-    M_resp = resp[2]
+	for i in range(nRep):
+		centers = list(map(int, centersAll[i,].tolist()))
 
-    if (Jmin > J):
-      Jmin = J
-      partMin = L_resp
-    
-  # print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
-  
-  return [J, L_resp]
+		resp = FCM(dataset, centers, 2)
+
+		J = resp[0]
+		L_resp = resp[1]
+		M_resp = resp[2]
+
+		if (Jmin > J):
+			Jmin = J
+			partMin = L_resp
+
+		exec_time += resp[4]
+
+	# print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
+
+	return [J, L_resp, exec_time]
 
 
 def selectDataset(id):
@@ -64,9 +70,9 @@ def selectDataset(id):
 	elif id == 3:
 		# Dataset Sintético
 
-		n1 = 5
-		n2 = 5
-		n3 = 5
+		n1 = 50
+		n2 = 50
+		n3 = 50
 		
 		n = n1 + n2 + n3		
 		
@@ -114,6 +120,29 @@ def selectDataset(id):
 		return [synthetic, ref, nClusters, "Dataset Sintético"]
 
 
+def calculate_accuracy(L, ref):
+	ari = adjusted_rand_score(L, ref) * 100
+	f1_score_result = f1_score(y_true=ref, y_pred=L,average='micro') * 100
+
+	return [ari, f1_score_result]
+
+
+def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time):
+	fig, (result, original) = plt.subplots(1, 2)
+
+	fig.subplots_adjust(bottom=0.2)
+	
+	result.scatter(x_axis, y_axis, c=L)
+	result.set_title("FCM - " + dataset_name)
+	
+	accuracy = calculate_accuracy(L, ref)
+	result.set(xlabel="ARI: {:.2f}% \nF1 Score: {:.2f}%\nTempo de Execução: {:.2f}s".format(accuracy[0],accuracy[1],exec_time))
+
+	original.scatter(x_axis, y_axis, c=ref)
+	original.set_title("Referência")
+
+	plt.show()
+
 # definindo a função main no python
 if __name__ == "__main__":
 	params = selectDataset(3)
@@ -125,11 +154,9 @@ if __name__ == "__main__":
 	# Plotando os resultados
 	dataset = params[0]
 	L = result[1]
+	ref = params[1]
 
 	x_axis = dataset[:, 0]  
 	y_axis = dataset[:, 1]
 
-	plt.scatter(x_axis, y_axis, c=L)
-	plt.title("FCM - " + params[3])
-
-	plt.show()  
+	plot_results(x_axis, y_axis, L, ref, params[3], result[2])

@@ -1,7 +1,10 @@
 import numpy as np
+from timeit import default_timer as timer
 
 def FCM(data, centers, parM):
- 
+  
+  start = timer()
+  
   maxIteration = 100
   J = 1000
  
@@ -37,8 +40,10 @@ def FCM(data, centers, parM):
     Ubefore = U 
   
   L = getPartition(Ubefore)
+
+  end = timer()
   
-  result = [J, L, Ubefore, count]
+  result = [J, L, Ubefore, count, end - start]
   return result
  
 def initializePrototypes(data,centers):

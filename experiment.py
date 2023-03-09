@@ -3,43 +3,44 @@ import pandas as pd
 import random
 
 from FCM import FCM
+from MFCM import MFCM
 
 def experiment(dataset, mc, nRep, nClusters):
-  nObj = len(dataset)
-  # print('nObj: ', nObj)
-  # print('nClusters: ', nClusters)
 
-  centersAll = np.zeros((nRep, nClusters))
+	nObj = len(dataset)
 
-  for i in range(nRep):
-    centersAll[i] = random.sample(range(1, nObj), nClusters)
+	centersAll = np.zeros((nRep, nClusters))
 
-  # print(centersAll)
+	for i in range(nRep):
+		centersAll[i] = random.sample(range(1, nObj), nClusters)
 
-  Jmin = 2147483647     # int_max do R
-  partMin = 0
+	# print(centersAll)
 
-  for i in range(nRep):
-    centers = list(map(int, centersAll[i,].tolist()))
-    # print(f'Rep({i}) - Centros: {centers}')
-    resp = FCM(dataset, centers, 2)
+	Jmin = 2147483647     # int_max do R
+	partMin = 0
 
-    J = resp[0]
-    L_resp = resp[1]
-    M_resp = resp[2]
+	for i in range(nRep):
+		centers = list(map(int, centersAll[i,].tolist()))
+		# print(f'Rep({i}) - Centros: {centers}')
 
-    if (Jmin > J):
-      Jmin = J
-      partMin = L_resp
-    
-  print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
+		resp = FCM(dataset, centers, 2)
+
+		J = resp[0]
+		L_resp = resp[1]
+		M_resp = resp[2]
+
+		if (Jmin > J):
+			Jmin = J
+			partMin = L_resp
+
+	print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
 
 
 def selectDataset(id):
 	if id == 1:
 		# Iris
 		
-		dataset = pd.read_csv("PIBIC/iris.txt", sep=",", header=None)
+		dataset = pd.read_csv("datasets/iris.txt", sep=",", header=None)
 		dataset_ref = dataset.iloc[:,-1].tolist()
 
 		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
@@ -65,9 +66,9 @@ def selectDataset(id):
 	elif id == 3:
 		# Dataset Sintético
 
-		n1 = 5
-		n2 = 5
-		n3 = 5
+		n1 = 50
+		n2 = 50
+		n3 = 50
 		
 		n = n1 + n2 + n3		
 		
@@ -117,8 +118,8 @@ def selectDataset(id):
 
 # definindo a função main no python
 if __name__ == "__main__":
-	params = selectDataset(1)
-	mc = 50
-	nRep = 100
+	params = selectDataset(3)
+	mc = 1
+	nRep = 50
 
-	experiment(params[0], 50, 100, params[2])
+	experiment(params[0], mc, nRep, params[2])

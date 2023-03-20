@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from metrics import FR_Index
 from sklearn.metrics import f1_score
 from sklearn.metrics.cluster import adjusted_rand_score
 import random
@@ -37,7 +38,7 @@ def experiment(dataset, mc, nRep, nClusters):
 
 	# print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
 
-	return [J, L_resp, exec_time]
+	return [J, L_resp, exec_time, M_resp]
 
 
 def selectDataset(id):
@@ -70,9 +71,9 @@ def selectDataset(id):
 	elif id == 3:
 		# Dataset Sintético
 
-		n1 = 50
-		n2 = 50
-		n3 = 50
+		n1 = 10
+		n2 = 10
+		n3 = 10
 		
 		n = n1 + n2 + n3		
 		
@@ -120,23 +121,24 @@ def selectDataset(id):
 		return [synthetic, ref, nClusters, "Dataset Sintético"]
 
 
-def calculate_accuracy(L, ref):
+def calculate_accuracy(L, ref, U):
 	ari = adjusted_rand_score(L, ref) * 100
 	f1_score_result = f1_score(y_true=ref, y_pred=L,average='micro') * 100
+	fr = FR_Index(U, ref)
 
-	return [ari, f1_score_result]
+	return [fr, ari, f1_score_result]
 
 
-def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time):
+def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 	fig, (result, original) = plt.subplots(1, 2)
 
-	fig.subplots_adjust(bottom=0.2)
+	fig.subplots_adjust(bottom=0.25)
 	
 	result.scatter(x_axis, y_axis, c=L)
 	result.set_title("FCM - " + dataset_name)
 	
-	accuracy = calculate_accuracy(L, ref)
-	result.set(xlabel="ARI: {:.2f}% \nF1 Score: {:.2f}%\nTempo de Execução: {:.2f}s".format(accuracy[0],accuracy[1],exec_time))
+	accuracy = calculate_accuracy(L, ref, U)
+	result.set(xlabel="\nFR Index: {:.2f}\nARI: {:.2f}%\nF1 Score: {:.2f}%\nTempo de Execução: {:.2f}s".format(accuracy[0],accuracy[1], accuracy[2], exec_time))
 
 	original.scatter(x_axis, y_axis, c=ref)
 	original.set_title("Referência")
@@ -145,7 +147,7 @@ def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time):
 
 # definindo a função main no python
 if __name__ == "__main__":
-	params = selectDataset(3)
+	params = selectDataset(1)
 	mc = 50
 	nRep = 100
 
@@ -159,4 +161,4 @@ if __name__ == "__main__":
 	x_axis = dataset[:, 0]  
 	y_axis = dataset[:, 1]
 
-	plot_results(x_axis, y_axis, L, ref, params[3], result[2])
+	plot_results(x_axis, y_axis, L, ref, params[3], result[2], result[3])

@@ -1,8 +1,11 @@
 import numpy as np
+from timeit import default_timer as timer
 
 def MFCM(data, centers, parM):
 
-  maxIteration = 50
+  start = timer()
+
+  maxIteration = 100
   J = 1000
 
   count = 0
@@ -39,7 +42,9 @@ def MFCM(data, centers, parM):
   memb = aggregateMatrix(Ubefore,M)
   L = getPartition(memb)
 
-  resp = [J, L, memb, count]
+  end = timer()
+
+  resp = [J, L, memb, count, end - start]
 
   return resp
 	

@@ -9,35 +9,54 @@ import random
 from FCM import FCM
 from MFCM import MFCM
 
-def experiment(dataset, mc, nRep, nClusters):
+def experiment(indexData, mc, nRep):
+
 	exec_time = 0
 
-	nObj = len(dataset)
+	for i in range(mc):
+		print(f'mc: {i}')
+		synthetic = selectDataset(indexData)
+		dataset = synthetic[0]
+		ref = synthetic[1]
+		nClusters = synthetic[2]
+		dataName = synthetic[3]
 
-	centersAll = np.zeros((nRep, nClusters))
+		nObj = len(dataset)
 
-	for i in range(nRep):
-		centersAll[i] = random.sample(range(1, nObj), nClusters)
+		centersAll = np.zeros((nRep, nClusters))
 
-	Jmin = 2147483647     # int_max do R
-	partMin = 0
+		for c in range(nRep):
+			centersAll[c] = random.sample(range(1, nObj), nClusters)
 
-	for i in range(nRep):
-		centers = list(map(int, centersAll[i,].tolist()))
+		Jmin = 2147483647     # int_max do R
+		partMin = 0
 
-		resp = FCM(dataset, centers, 2)
+		for r in range(nRep):
+			centers = list(map(int, centersAll[r,].tolist()))
 
-		J = resp[0]
-		L_resp = resp[1]
-		M_resp = resp[2]
+			resp = FCM(dataset, centers, 2)
 
-		if (Jmin > J):
-			Jmin = J
-			partMin = L_resp
+			J = resp[0]
+			L_resp = resp[1]
+			M_resp = resp[2]
 
-		exec_time += resp[4]
+			if (Jmin > J):
+				Jmin = J
+				partMin = L_resp
+
+			exec_time += resp[4]
+
+		metricas = calculate_accuracy(L_resp, ref, M_resp)
+
 
 	# print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
+
+	# Plotando os resultados
+
+	x_axis = dataset[:, 0]  
+	y_axis = dataset[:, 1]
+
+	plot_results(x_axis, y_axis, L_resp, ref, dataName, exec_time, M_resp)
 
 	return [J, L_resp, exec_time, M_resp]
 
@@ -317,18 +336,7 @@ def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 
 # definindo a função main no python
 if __name__ == "__main__":
-	params = selectDataset(6)
-	mc = 5
-	nRep = 100
+	mc = 3
+	nRep = 10
 
-	result = experiment(params[0], mc, nRep, params[2])
-
-	# Plotando os resultados
-	dataset = params[0]
-	L = result[1]
-	ref = params[1]
-
-	x_axis = dataset[:, 0]  
-	y_axis = dataset[:, 1]
-
-	plot_results(x_axis, y_axis, L, ref, params[3], result[2], result[3])
+	result = experiment(1, mc, nRep)

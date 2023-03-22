@@ -16,6 +16,7 @@ def FCM(data, centers, parM):
   Jbefore = J + 1.0
   
   while abs(Jbefore - J) > 0.000001 and count < maxIteration:
+    
     count += 1
     
     D = updateDistances(data,P)

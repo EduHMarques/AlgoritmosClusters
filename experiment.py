@@ -13,8 +13,9 @@ def experiment(indexData, mc, nRep):
 
 	exec_time = 0
 
+	listaMetricas = []
+
 	for i in range(mc):
-		print(f'mc: {i}')
 		synthetic = selectDataset(indexData)
 		dataset = synthetic[0]
 		ref = synthetic[1]
@@ -45,8 +46,10 @@ def experiment(indexData, mc, nRep):
 				partMin = L_resp
 
 			exec_time += resp[4]
+			print(f'MC: {i}, Rep: {r}')
 
 		metricas = calculate_accuracy(L_resp, ref, M_resp)
+		listaMetricas.append(metricas)
 
 
 	# print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
@@ -72,6 +75,8 @@ def selectDataset(id):
 		dataset_unlabeled = dataset_unlabeled.to_numpy()
 			
 		nClusters = 3
+
+		dataset_unlabeled = normalize(dataset_unlabeled)
 		
 		return [dataset_unlabeled, dataset_ref, nClusters, "Iris Dataset"]
 	elif id == 2:
@@ -204,6 +209,7 @@ def selectDataset(id):
 		return [synthetic, ref, nClusters, "Dataset Sintético 2"]
 
 	elif id == 5:
+		# (Dataset 1 do 'pimentel2013')
 		n1 = 200
 		n2 = 100
 		n3 = 50
@@ -221,7 +227,6 @@ def selectDataset(id):
 		mu_31 = 18
 		mu_32 = 14
 
-		
 		sigma_11 = 9
 		sigma_12 = 3
 		
@@ -254,9 +259,10 @@ def selectDataset(id):
 		
 		ref = np.concatenate((refClass1, refClass2, refClass3))
 
-		return [synthetic, ref, nClusters, "Dataset Sintético 3"] # (Dataset 1 do 'pimentel2013')
+		return [synthetic, ref, nClusters, "Dataset Sintético 3"] 
 	
 	elif id == 6:
+		# (Dataset 2 do 'pimentel2013')
 		n1 = 200
 		n2 = 100
 		n3 = 50
@@ -307,7 +313,28 @@ def selectDataset(id):
 		
 		ref = np.concatenate((refClass1, refClass2, refClass3))
 
-		return [synthetic, ref, nClusters, "Dataset Sintético 4"] # (Dataset 2 do 'pimentel2013')
+		return [synthetic, ref, nClusters, "Dataset Sintético 4"]
+	
+def normalize(dataset):
+	nRows = dataset.shape[0]
+	nCol = dataset.shape[1]
+
+	normalizedArray = np.arange(nRows * nCol)
+	normalizedArray = normalizedArray.reshape((nRows, nCol))
+	normalizedArray = (np.zeros_like(normalizedArray)).astype('float64')
+
+	media = np.mean(dataset, axis=0)
+	dp = np.std(dataset, axis=0)
+
+	novo = np.arange(nRows * nCol)
+	novo = normalizedArray.reshape((nRows, nCol))
+	novo = (np.zeros_like(novo)).astype('float64')
+
+	for i in range (0, nRows):
+		for j in range (0, nCol):
+			novo[i, j] = (dataset[i, j] - media[j]) / dp[j]
+
+	return novo
 
 
 def calculate_accuracy(L, ref, U):
@@ -336,7 +363,7 @@ def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 
 # definindo a função main no python
 if __name__ == "__main__":
-	mc = 3
-	nRep = 10
+	mc = 1
+	nRep = 100
 
 	result = experiment(1, mc, nRep)

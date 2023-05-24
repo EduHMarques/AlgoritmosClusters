@@ -8,6 +8,7 @@ import random
 
 from FCM import FCM
 from MFCM import MFCM
+from filters import *
 
 def experiment(indexData, mc, nRep):
 
@@ -35,7 +36,7 @@ def experiment(indexData, mc, nRep):
 		for r in range(nRep):
 			centers = list(map(int, centersAll[r,].tolist()))
 
-			resp = FCM(dataset, centers, 2)
+			resp = MFCM(dataset, centers, 2)
 
 			J = resp[0]
 			L_resp = resp[1]
@@ -46,8 +47,9 @@ def experiment(indexData, mc, nRep):
 				partMin = L_resp
 
 			exec_time += resp[4]
-			print(f'MC: {i}, Rep: {r}')
+			print(f'MC: {i + 1}, Rep: {r + 1}')
 
+		resultado_filtro = variance_filter2(dataset, M_resp, nClusters)
 		metricas = calculate_accuracy(L_resp, ref, M_resp)
 		listaMetricas.append(metricas)
 
@@ -58,6 +60,10 @@ def experiment(indexData, mc, nRep):
 
 	x_axis = dataset[:, 0]  
 	y_axis = dataset[:, 1]
+
+	print(f'{resultado_filtro[1]}: ')
+	for item in range(len(resultado_filtro[0])):
+		print(f'var{item + 1}: {resultado_filtro[0][item]}')
 
 	plot_results(x_axis, y_axis, L_resp, ref, dataName, exec_time, M_resp)
 
@@ -315,6 +321,62 @@ def selectDataset(id):
 
 		return [synthetic, ref, nClusters, "Dataset Sintético 4"]
 	
+	elif id == 7:
+		# KC2
+		
+		dataset = pd.read_csv("datasets/kc2.txt", sep=",", header=None)
+		dataset_ref = dataset.iloc[:,-1].tolist()
+
+		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+			
+		nClusters = 2
+
+		dataset_unlabeled = normalize(dataset_unlabeled)
+		
+		return [dataset_unlabeled, dataset_ref, nClusters, "KC2 Dataset"]
+	elif id == 8:
+		# Dataset Sintético
+
+		n1 = 50
+		n2 = 50
+		
+		n = n1 + n2
+		
+		nClusters = 2
+		
+		mu_11 = 0
+		mu_12 = 0
+
+		mu_21 = 10
+		mu_22 = 0
+		
+		sigma_11 = 1
+		sigma_12 = 20
+		
+		sigma_21 = 1
+		sigma_22 = 20
+		
+		x1 = np.random.normal(mu_11, sigma_11, n1)
+		y1 = np.random.normal(mu_12, sigma_12, n1)
+		
+		x2 = np.random.normal(mu_21, sigma_21, n2)
+		y2 = np.random.normal(mu_22, sigma_22, n2)
+		
+
+		class1 = np.column_stack((x1, y1))
+		class2 = np.column_stack((x2, y2))
+
+		synthetic = np.vstack((class1, class2))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		
+		ref = np.concatenate((refClass1, refClass2))
+
+		return [synthetic, ref, nClusters, "Dataset Sintético 5"]
+	
+	
 def normalize(dataset):
 	nRows = dataset.shape[0]
 	nCol = dataset.shape[1]
@@ -336,6 +398,22 @@ def normalize(dataset):
 
 	return novo
 
+def normalize2(dataset):
+	nRows = dataset.shape[0]
+	nCol = dataset.shape[1]
+
+	novo = np.arange(nRows * nCol)
+	novo = novo.reshape((nRows, nCol))
+	novo = (np.zeros_like(novo)).astype('float64')
+
+	for i in range (0, nRows):
+		for j in range (0, nCol):
+			min = np.min(dataset[:,j])
+			max = np.max(dataset[:,j])
+			novo[i, j] = (dataset[i, j] - min) / (max - min)
+
+	return novo
+
 
 def calculate_accuracy(L, ref, U):
 	ari = adjusted_rand_score(L, ref) * 100
@@ -344,14 +422,13 @@ def calculate_accuracy(L, ref, U):
 
 	return [fr, ari, f1_score_result]
 
-
 def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 	fig, (result, original) = plt.subplots(1, 2)
 
 	fig.subplots_adjust(bottom=0.25)
 	
 	result.scatter(x_axis, y_axis, c=L)
-	result.set_title("FCM - " + dataset_name)
+	result.set_title("MFCM - " + dataset_name)
 	
 	accuracy = calculate_accuracy(L, ref, U)
 	result.set(xlabel="\nFR Index: {:.2f}\nARI: {:.2f}%\nF1 Score: {:.2f}%\nTempo de Execução: {:.2f}s".format(accuracy[0],accuracy[1], accuracy[2], exec_time))
@@ -364,6 +441,6 @@ def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 # definindo a função main no python
 if __name__ == "__main__":
 	mc = 1
-	nRep = 100
+	nRep = 50
 
-	result = experiment(1, mc, nRep)
+	result = experiment(8, mc, nRep)

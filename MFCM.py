@@ -44,7 +44,7 @@ def MFCM(data, centers, parM):
 
   end = timer()
 
-  resp = [J, L, memb, count, end - start]
+  resp = [J, L, Ubefore, count, end - start]
 
   return resp
 	

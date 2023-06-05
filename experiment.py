@@ -30,8 +30,9 @@ def experiment(indexData, mc, nRep):
 		for c in range(nRep):
 			centersAll[c] = random.sample(range(1, nObj), nClusters)
 
-		Jmin = 2147483647     # int_max do R
-		partMin = 0
+		Jmin = 2147483647     	# int_max do R
+		bestL = 0				# melhor valor de L_resp
+		bestM = 0				# melhor valor de M_resp
 
 		for r in range(nRep):
 			centers = list(map(int, centersAll[r,].tolist()))
@@ -44,14 +45,16 @@ def experiment(indexData, mc, nRep):
 
 			if (Jmin > J):
 				Jmin = J
-				partMin = L_resp
+				bestL = L_resp
+				bestM = M_resp
 
 			exec_time += resp[4]
 			print(f'MC: {i + 1}, Rep: {r + 1}')
 
-		resultado_filtro = variance_filter2(dataset, M_resp, nClusters)
-		metricas = calculate_accuracy(L_resp, ref, M_resp)
+		resultado_filtro = variance_filter2(dataset, bestM, nClusters)
+		metricas = calculate_accuracy(bestL, ref, bestM)
 		listaMetricas.append(metricas)
+		print(f'\nMC {i}: \nFR Index: {metricas[0]}\nARI: {metricas[1]}%\nF1 Score: {metricas[2]}%')
 
 
 	# print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
@@ -61,13 +64,13 @@ def experiment(indexData, mc, nRep):
 	x_axis = dataset[:, 0]  
 	y_axis = dataset[:, 1]
 
-	print(f'{resultado_filtro[1]}: ')
+	print(f'\n{resultado_filtro[1]}: ')
 	for item in range(len(resultado_filtro[0])):
 		print(f'var{item + 1}: {resultado_filtro[0][item]}')
 
-	plot_results(x_axis, y_axis, L_resp, ref, dataName, exec_time, M_resp)
+	plot_results(x_axis, y_axis, bestL, ref, dataName, exec_time, bestM)
 
-	return [J, L_resp, exec_time, M_resp]
+	return [J, bestL, exec_time, bestM]
 
 
 def selectDataset(id):
@@ -346,16 +349,16 @@ def selectDataset(id):
 		nClusters = 2
 		
 		mu_11 = 0
-		mu_12 = 0
+		mu_12 = 10
 
-		mu_21 = 10
+		mu_21 = 0
 		mu_22 = 0
 		
-		sigma_11 = 1
-		sigma_12 = 20
+		sigma_11 = 20
+		sigma_12 = 1
 		
-		sigma_21 = 1
-		sigma_22 = 20
+		sigma_21 = 20
+		sigma_22 = 1
 		
 		x1 = np.random.normal(mu_11, sigma_11, n1)
 		y1 = np.random.normal(mu_12, sigma_12, n1)
@@ -440,7 +443,7 @@ def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 
 # definindo a função main no python
 if __name__ == "__main__":
-	mc = 1
-	nRep = 50
+	mc = 3
+	nRep = 100
 
-	result = experiment(8, mc, nRep)
+	result = experiment(2, mc, nRep)

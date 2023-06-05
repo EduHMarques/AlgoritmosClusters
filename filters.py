@@ -42,7 +42,7 @@ def variance_filter(data, U, nClusters):
             aTotal.append(a)
 
         aTotal = np.asarray(aTotal)
-        print(aTotal)
+        # print(aTotal)
         variance = np.var(aTotal)
 
         V.append(round(variance * 100, 5))
@@ -70,7 +70,7 @@ def variance_filter2(data, U, nClusters):
             aTotal.append(var)
 
         aTotal = np.asarray(aTotal)
-        print(aTotal)
+        # print(aTotal)
         media = np.mean(aTotal)
 
         V.append(round(media * 100, 5))

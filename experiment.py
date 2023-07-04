@@ -54,19 +54,21 @@ def experiment(indexData, mc, nRep):
 		resultado_filtro = variance_filter2(dataset, bestM, nClusters)
 		metricas = calculate_accuracy(bestL, ref, bestM)
 		listaMetricas.append(metricas)
-		print(f'\nMC {i}: \nFR Index: {metricas[0]}\nARI: {metricas[1]}%\nF1 Score: {metricas[2]}%')
+		print(f'\nMC {i + 1}: \nFR Index: {metricas[0]}\nARI: {metricas[1]}%\nF1 Score: {metricas[2]}%')
 
 
 	# print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
 
 	# Plotando os resultados
 
-	x_axis = dataset[:, 0]  
-	y_axis = dataset[:, 1]
+	x_axis = dataset[:, 4]  
+	y_axis = dataset[:, 5]
+
+	sortedResultado = np.sort(resultado_filtro[0])
 
 	print(f'\n{resultado_filtro[1]}: ')
 	for item in range(len(resultado_filtro[0])):
-		print(f'var{item + 1}: {resultado_filtro[0][item]}')
+		print(f'var{item + 1}: {sortedResultado[item]}')
 
 	plot_results(x_axis, y_axis, bestL, ref, dataName, exec_time, bestM)
 
@@ -349,7 +351,7 @@ def selectDataset(id):
 		nClusters = 2
 		
 		mu_11 = 0
-		mu_12 = 10
+		mu_12 = 100
 
 		mu_21 = 0
 		mu_22 = 0
@@ -378,6 +380,56 @@ def selectDataset(id):
 		ref = np.concatenate((refClass1, refClass2))
 
 		return [synthetic, ref, nClusters, "Dataset Sintético 5"]
+	elif id == 9:
+		# Dataset Sintético
+
+		n1 = 50
+		n2 = 50
+		
+		n = n1 + n2
+		
+		nClusters = 2
+		
+		mu_11 = 0
+		mu_12 = 50
+
+		mu_21 = 30
+		mu_22 = 0
+		
+		sigma_11 = 30
+		sigma_12 = 1
+		
+		sigma_21 = 30
+		sigma_22 = 1
+		
+		x1 = []
+		y1 = []
+
+		for i in range(n1):
+			x1.append(np.random.normal(mu_11, sigma_11, 1) + i) 
+		for i in range(n1):
+			y1.append(np.random.normal(mu_12, sigma_12, 1) + i) 
+
+		x2 = []
+		y2 = []
+
+		for i in range(n1):
+			x1.append(np.random.normal(mu_21, sigma_21, 1) + i) 
+
+		for i in range(n1):
+			y1.append(np.random.normal(mu_22, sigma_22, 1) + i) 
+
+		class1 = np.column_stack((x1, y1))
+		class2 = np.column_stack((x2, y2))
+
+		synthetic = np.vstack((class1, class2))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		
+		ref = np.concatenate((refClass1, refClass2))
+
+		return [synthetic, ref, nClusters, "Dataset Sintético 6"]
 	
 	
 def normalize(dataset):
@@ -443,7 +495,7 @@ def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 
 # definindo a função main no python
 if __name__ == "__main__":
-	mc = 3
-	nRep = 100
+	mc = 1
+	nRep = 5
 
-	result = experiment(2, mc, nRep)
+	result = experiment(7, mc, nRep)

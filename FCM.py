@@ -51,30 +51,20 @@ def initializePrototypes(data,centers):
  
   nVar = data.shape[1]
   nProt = len(centers)
-  # print(f'Numero de var: {nVar}\nNumero de prot: {nProt}')
   
-  P = np.arange(nProt * nVar)
-  P = P.reshape((nProt, nVar))
-  
-  P = (np.zeros_like(P)).astype('float64')
+  P = np.zeros((nProt, nVar), dtype='float64')
   
   for k in range(0, nProt):
     P[k,] = data[centers[k],]
-    # print(P[k,])
-
-  # print(P)    # Não tá inicializando corretamente a matriz P.
   
   return P
  
 def updatePrototypes(data, memberships, parM):
   
-  nObj = data.shape[0]
-  nVar = data.shape[1]
+  nObj, nVar = data.shape
   nProt = memberships.shape[1]
   
-  P = np.arange(nProt * nVar)
-  P = P.reshape((nProt, nVar))
-  P = (np.zeros_like(P)).astype('float64')
+  P = np.zeros((nProt, nVar), dtype='float64')
   
   for k in range(0, nProt):
     
@@ -98,11 +88,8 @@ def updateDistances(data, prototypes):
   
   nObj = data.shape[0]
   nProt = prototypes.shape[0]
-  
-  D = np.arange(nObj * nProt)
-  D = D.reshape((nObj, nProt))
-  
-  D = (np.zeros_like(D)).astype('float64')
+
+  D = np.zeros((nObj, nProt), dtype='float64')
   
   for j in range(0, nObj):
     
@@ -110,23 +97,17 @@ def updateDistances(data, prototypes):
     
     for k in range(0, nProt):
         prot = prototypes[k,]
-        
-        # distance = sum((obj - prot)^2)
- 
         distance = np.sum(np.square(np.subtract(obj, prot)))
+        
         D[j,k] = distance
       
   return D
  
 def updateMembership(distances, parM):
   
-  nObj = distances.shape[0]
-  nProt = distances.shape[1]
+  nObj, nProt = distances.shape
   
-  U = np.arange(nObj * nProt)
-  U = U.reshape((nObj, nProt))
-  
-  U = (np.zeros_like(U)).astype('float64')
+  U = np.zeros((nObj, nProt), dtype='float64')
   
   for i in range(0, nObj):
     
@@ -140,7 +121,7 @@ def updateMembership(distances, parM):
         
         aux1 = ((int(d)+0.0000001)/(int(dd)+0.0000001))
         aux2 = (1.0/(parM-1.0))
-        # soma += ((int(d)+0.0000001)/(int(dd)+0.0000001))^(1.0/(parM-1.0))
+
         soma += pow(aux1, aux2)
     
       soma = pow(soma, -1.0)
@@ -153,21 +134,14 @@ def updateCriterion(memberships,distances,parM):
   
   J = 0
   
-  nObj = distances.shape[0]
-  nProt = distances.shape[1]
+  nObj, nProt = distances.shape
   
   for j in range(0, nObj):
     
     for k in range(0, nProt):
       
       delta = pow(memberships[j,k], parM)
-      # print("Memberships:")
-      # print(memberships[j,k])
-      # print("Delta:")
-      # print(delta)
       distance = distances[j,k]
-      # print("Distancia:")
-      # print(distance)
       
       J += delta*distance
   

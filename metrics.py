@@ -2,9 +2,7 @@ import numpy as np
 
 def FR_Index(U, ref):
 
-    nObj = U.shape[0]
-    nClass = U.shape[1]
-
+    nObj, nClass = U.shape
     soma = 0
 
     for i in range (0, nObj):

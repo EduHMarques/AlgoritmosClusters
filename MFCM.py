@@ -20,24 +20,17 @@ def MFCM(data, centers, parM):
     count += 1
     
     D = updateDistances(data, P)
-    # print('Distancia atualizadas')
 
     U = updateMembership(D, parM)
-    # print('Membership atualizadas')
 
     P = updatePrototypes(data, U, parM)
-    # print('Prototipos atualizados')
 
     Jbefore = J
     J = updateCriterion(U, D, parM)
-    # print('Criterio atualizados')
 
     Ubefore = U	
 
-  M = np.arange(len(centers) * data.shape[1])
-  M = M.reshape((len(centers), data.shape[1]))
-
-  M = (np.ones_like(M)).astype('float64')
+  M = np.ones((len(centers), data.shape[1]), dtype='float64')
 
   memb = aggregateMatrix(Ubefore,M)
   L = getPartition(memb)
@@ -67,13 +60,10 @@ def initializePrototypes(data,centers):
 
 def updatePrototypes(data, memberships, parM):
   
-  nObj = data.shape[0]
-  nVar = data.shape[1]
+  nObj, nVar = data.shape
   nProt = memberships[0].shape[1]
   
-  P = np.arange(nProt * nVar)
-  P = P.reshape((nProt, nVar))
-  P = (np.zeros_like(P)).astype('float64')
+  P = np.zeros((nProt, nVar), dtype='float64')
 
   for i in range(0, nVar):
   
@@ -95,23 +85,17 @@ def updatePrototypes(data, memberships, parM):
   
   return P
 
+
 def updateDistances(data, prototypes):
   
-  nObj = data.shape[0]
+  nObj, nVar = data.shape
   nProt = prototypes.shape[0]
-  nVar = data.shape[1]
   
-  D = np.arange(nVar * nObj * nProt)
-  D = D.reshape((nVar, nObj, nProt))
-  
-  D = (np.zeros_like(D)).astype('float64')
-  
-  Dvar = np.arange(nObj * nProt)
-  Dvar = Dvar.reshape((nObj, nProt))
+  D = np.zeros((nVar, nObj, nProt), dtype='float64')
 
   for i in range(0, nVar):
     
-    Dvar = (np.zeros_like(Dvar)).astype('float64')
+    Dvar = np.zeros((nObj, nProt), dtype='float64')
   
     for j in range(0, nObj):
         
@@ -120,14 +104,10 @@ def updateDistances(data, prototypes):
       for k in range(0, nProt):
         prot = prototypes[k,i]
         distance = pow(obj-prot, 2)
-        # distance = np.sum(np.square(np.subtract(obj, prot)))
+
         Dvar[j,k] = distance
 
-
     D[i] = Dvar.copy()
-      
-  # print(f'D dim: {D.ndim}')
-  # print(D)
 
   return D
 
@@ -138,24 +118,17 @@ def updateMembership(distances, parM):
   nProt = distances[0].shape[1]
   nVar = len(distances)
   
-  U = np.arange(nVar * nObj * nProt)
-  U = U.reshape((nVar, nObj, nProt))
-  
-  U = (np.zeros_like(U)).astype('float64')
+  U = np.zeros((nVar, nObj, nProt), dtype='float64')
 
   for v in range(0, nVar):
 
-    Uvar = np.arange(nObj * nProt)
-    Uvar = Uvar.reshape((nObj, nProt))
-    
-    Uvar = (np.zeros_like(Uvar)).astype('float64')
+    Uvar = np.zeros((nObj, nProt), dtype='float64')
   
     for i in range(0, nObj):
         
       for k in range(0, nProt):
       
         d = distances[v][i,k]
-        # print(f'd: {d}')
         soma = 0
 
         for vv in range(0, nVar):
@@ -172,8 +145,6 @@ def updateMembership(distances, parM):
         Uvar[i,k] = soma
     
     U[v] = Uvar.copy()
-
-  # print(f'U: {U}')
   
   return U
 
@@ -185,12 +156,6 @@ def updateCriterion(memberships,distances,parM):
   nObj = distances.shape[1]
   nProt = distances[0].shape[1]
   nVar = len(distances)
-
-  # print('Criterio')
-  # print(memberships.size)
-  # print(memberships)
-
-  # print(memberships)
 
   for i in range(0, nVar):
   
@@ -211,10 +176,7 @@ def aggregateMatrix(memberships, M):
   nProt = memberships[0].shape[1]
   nVar = len(memberships)
 
-  memb = np.arange(nObj * nProt)
-  memb = memb.reshape((nObj, nProt))
-  
-  memb = (np.zeros_like(memb)).astype('float64')	
+  memb = np.zeros((nObj, nProt), dtype='float64')
 
   for j in range(0, nObj):
     soma0 = 0
@@ -239,10 +201,7 @@ def computeAij(memberships):
   nProt = memberships.shape[1]
   nVar = len(memberships)
 
-  M = np.arrange(nProt * nVar)
-  M = M.reshape((nProt, nVar))
-
-  M = (np.ones_like(M)).astype('float64')
+  M = np.ones((nProt, nVar), dtype='float64')
 
   for j in range(0, nProt):
     for k in range(0,nVar):

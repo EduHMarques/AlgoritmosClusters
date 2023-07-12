@@ -1,6 +1,5 @@
 import numpy as np
 
-# MFCM Based Filters
 
 def sum_filter(data, U, nClusters):
     V = []
@@ -22,37 +21,10 @@ def sum_filter(data, U, nClusters):
         aTotal = round(aTotal * 100, 2)
         V.append(aTotal)
     
-    return (V, 'Filtro por somatorio')
+    return (V, 'Filtro por Somatório')
 
 
 def variance_filter(data, U, nClusters):
-    V = []
-    nVar = data.shape[1]
-
-    for i in range(0, nVar):
-        # print(f'i: {i}')
-        aTotal = [] # Relevância total
-        nObj = data.shape[0]
-
-        for j in range(0, nClusters):  
-            a = 0
-            for k in range(0, nObj):
-                u = U[i][k][j] # Acessa o grau de pertinência do objeto k ao cluster j em relação a variável i
-                a += u
-        
-            a /= nObj # Relevância em relação ao cluster j
-            aTotal.append(a)
-
-        aTotal = np.asarray(aTotal)
-        # print(aTotal)
-        variance = np.var(aTotal)
-
-        V.append(round(variance * 100, 5))
-    
-    return (V, 'Filtro por variancia')
-
-
-def variance_filter2(data, U, nClusters):
     V = []
     nVar = data.shape[1]
 
@@ -75,7 +47,28 @@ def variance_filter2(data, U, nClusters):
         # print(aTotal)
         media = np.mean(aTotal)
 
-        V.append(round(media * 100, 5))
+        V.append((round(media * 100, 5), i))
     
-    return (V, 'Filtro por variancia 2')
+    return (V, 'Filtro por Variância')
 
+
+def apply_filter(dataset, result, n):
+
+    result[0].sort(key=lambda k : k[0])
+
+    print(f'\n{result[1]}: ')
+    for item in range(len(result[0])):
+        print(f'Variável {result[0][item][1]}: {result[0][item][0]}')
+
+    deleted_vars = []
+    
+    for i in range(n):
+        index = result[0][i][1]
+        deleted_vars.append(index)
+        dataset = np.delete(dataset, index, axis = 1)
+
+    print("\nVariáveis deletadas:")
+    for var in deleted_vars:
+        print(f"Variável {var}")
+
+    return dataset

@@ -14,8 +14,6 @@ def experiment(indexData, mc, nRep):
 
 	exec_time = 0
 
-	listaMetricas = []
-
 	for i in range(mc):
 		synthetic = selectDataset(indexData)
 		dataset = synthetic[0]
@@ -51,28 +49,15 @@ def experiment(indexData, mc, nRep):
 			exec_time += resp[4]
 			print(f'MC: {i + 1}, Rep: {r + 1}')
 
-		resultado_filtro = variance_filter2(dataset, bestM, nClusters)
-		metricas = calculate_accuracy(bestL, ref, bestM)
-		listaMetricas.append(metricas)
-		print(f'\nMC {i + 1}: \nFR Index: {metricas[0]}\nARI: {metricas[1]}%\nF1 Score: {metricas[2]}%')
+	resultado_filtro = variance_filter(dataset, bestM, nClusters)
+	dataset = apply_filter(dataset, resultado_filtro, 1) # Aplica filtro ao dataset
 
-
-	# print(f"\nRESULTADO:\n\nJmin: {J}\n\nMatriz L:{L_resp}")
-
-	# Plotando os resultados
-
-	x_axis = dataset[:, 4]  
-	y_axis = dataset[:, 5]
-
-	sortedResultado = np.sort(resultado_filtro[0])
-
-	print(f'\n{resultado_filtro[1]}: ')
-	for item in range(len(resultado_filtro[0])):
-		print(f'var{item + 1}: {sortedResultado[item]}')
+	x_axis = dataset[:, 0]  
+	y_axis = dataset[:, 1]
 
 	plot_results(x_axis, y_axis, bestL, ref, dataName, exec_time, bestM)
 
-	return [J, bestL, exec_time, bestM]
+	return [J, bestL, exec_time, bestM, dataset] # Retorna o dataset filtrado
 
 
 def selectDataset(id):
@@ -107,9 +92,9 @@ def selectDataset(id):
 	elif id == 3:
 		# Dataset Sintético
 
-		n1 = 10
-		n2 = 10
-		n3 = 10
+		n1 = 100
+		n2 = 100
+		n3 = 100
 		
 		n = n1 + n2 + n3		
 		
@@ -341,47 +326,7 @@ def selectDataset(id):
 		
 		return [dataset_unlabeled, dataset_ref, nClusters, "KC2 Dataset"]
 	elif id == 8:
-		# Dataset Sintético
-
-		n1 = 50
-		n2 = 50
-		
-		n = n1 + n2
-		
-		nClusters = 2
-		
-		mu_11 = 0
-		mu_12 = 100
-
-		mu_21 = 0
-		mu_22 = 0
-		
-		sigma_11 = 20
-		sigma_12 = 1
-		
-		sigma_21 = 20
-		sigma_22 = 1
-		
-		x1 = np.random.normal(mu_11, sigma_11, n1)
-		y1 = np.random.normal(mu_12, sigma_12, n1)
-		
-		x2 = np.random.normal(mu_21, sigma_21, n2)
-		y2 = np.random.normal(mu_22, sigma_22, n2)
-		
-
-		class1 = np.column_stack((x1, y1))
-		class2 = np.column_stack((x2, y2))
-
-		synthetic = np.vstack((class1, class2))
-
-		refClass1 = np.repeat(1, n1)
-		refClass2 = np.repeat(2, n2)
-		
-		ref = np.concatenate((refClass1, refClass2))
-
-		return [synthetic, ref, nClusters, "Dataset Sintético 5"]
-	elif id == 9:
-		# Dataset Sintético
+		# Dataset Sintético Correlacionado (gambiarra)
 
 		n1 = 50
 		n2 = 50
@@ -430,6 +375,137 @@ def selectDataset(id):
 		ref = np.concatenate((refClass1, refClass2))
 
 		return [synthetic, ref, nClusters, "Dataset Sintético 6"]
+	
+	elif id == 10:
+		# Dataset Sintético
+
+		n1 = 50
+		n2 = 50
+		
+		n = n1 + n2
+		
+		nClusters = 2
+		
+		mu_11 = 0
+		mu_12 = 100
+
+		mu_21 = 0
+		mu_22 = 0
+		
+		sigma_11 = 20
+		sigma_12 = 2
+		
+		sigma_21 = 20
+		sigma_22 = 2
+		
+		x1 = np.random.normal(mu_11, sigma_11, n1)
+		y1 = np.random.normal(mu_12, sigma_12, n1)
+		
+		x2 = np.random.normal(mu_21, sigma_21, n2)
+		y2 = np.random.normal(mu_22, sigma_22, n2)
+		
+
+		class1 = np.column_stack((x1, y1))
+		class2 = np.column_stack((x2, y2))
+
+		synthetic = np.vstack((class1, class2))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		
+		ref = np.concatenate((refClass1, refClass2))
+
+		return [synthetic, ref, nClusters, "2 elipses HOR."]
+	
+	elif id == 11:
+		# Dataset Sintético
+
+		n1 = 50
+		n2 = 50
+		
+		n = n1 + n2
+		
+		nClusters = 2
+		
+		mu_11 = 0
+		mu_12 = 0
+
+		mu_21 = 50
+		mu_22 = 0
+		
+		sigma_11 = 4
+		sigma_12 = 20
+		
+		sigma_21 = 4
+		sigma_22 = 20
+		
+		x1 = np.random.normal(mu_11, sigma_11, n1)
+		y1 = np.random.normal(mu_12, sigma_12, n1)
+		
+		x2 = np.random.normal(mu_21, sigma_21, n2)
+		y2 = np.random.normal(mu_22, sigma_22, n2)
+		
+
+		# class1 = np.column_stack((x1, y1))
+		# class2 = np.column_stack((x2, y2))
+
+		synthetic = np.vstack((class1, class2))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		
+		ref = np.concatenate((refClass1, refClass2))
+
+		return [synthetic, ref, nClusters, "2 elipses VER."]
+	
+	elif id == 12:
+		# Dataset Sintético
+
+		n1 = 50
+		n2 = 50
+		
+		n = n1 + n2
+		
+		nClusters = 2
+		
+		mu_11 = 0
+		mu_12 = 0
+		mu_13 = 0
+
+		mu_21 = 20
+		mu_22 = 0
+		mu_23 = 50
+		
+		sigma_11 = 4
+		sigma_12 = 20
+		sigma_13 = 4
+		
+		sigma_21 = 4
+		sigma_22 = 20
+		sigma_23 = 4
+		
+		x1 = np.random.normal(mu_11, sigma_11, n1)
+		y1 = np.random.normal(mu_12, sigma_12, n1)
+		z1 = np.random.normal(mu_13, sigma_13, n1)
+		
+		x2 = np.random.normal(mu_21, sigma_21, n2)
+		y2 = np.random.normal(mu_22, sigma_22, n2)
+		z2 = np.random.normal(mu_23, sigma_23, n2)
+
+		class1 = np.column_stack((x1, y1, z1))
+		class2 = np.column_stack((x2, y2, z2))
+		
+		# class1 = np.column_stack((x1, z1))
+		# class2 = np.column_stack((x2, z2))
+
+		synthetic = np.vstack((class1, class2))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		
+		ref = np.concatenate((refClass1, refClass2))
+
+		return [synthetic, ref, nClusters, "2 elipses 3D"]
 	
 	
 def normalize(dataset):
@@ -496,6 +572,6 @@ def plot_results(x_axis, y_axis, L, ref, dataset_name, exec_time, U):
 # definindo a função main no python
 if __name__ == "__main__":
 	mc = 1
-	nRep = 5
+	nRep = 100
 
-	result = experiment(7, mc, nRep)
+	result = experiment(12, mc, nRep)

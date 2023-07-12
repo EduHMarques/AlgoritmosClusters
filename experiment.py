@@ -14,8 +14,6 @@ def experiment(indexData, mc, nRep):
 
 	exec_time = 0
 
-	listaMetricas = []
-
 	for i in range(mc):
 		synthetic = selectDataset(indexData)
 		dataset = synthetic[0]
@@ -51,76 +49,15 @@ def experiment(indexData, mc, nRep):
 			exec_time += resp[4]
 			print(f'MC: {i + 1}, Rep: {r + 1}')
 
-	resultado_filtro = variance_filter2(dataset, bestM, nClusters)
-	metricas = calculate_accuracy(bestL, ref, bestM)
-	listaMetricas.append(metricas)
-	print(f'\nMC {i + 1}: \nFR Index: {metricas[0]}\nARI: {metricas[1]}%\nF1 Score: {metricas[2]}%')
-
-	resultado_filtro[0].sort(key=lambda k : k[0])
+	resultado_filtro = variance_filter(dataset, bestM, nClusters)
+	dataset = apply_filter(dataset, resultado_filtro, 1) # Aplica filtro ao dataset
 
 	x_axis = dataset[:, 0]  
 	y_axis = dataset[:, 1]
 
-	print(f'\n{resultado_filtro[1]}: ')					# Não ordenadas
-	for item in range(len(resultado_filtro[0])):
-		print(f'var{item + 1}: {resultado_filtro[0][item]}')
-
 	plot_results(x_axis, y_axis, bestL, ref, dataName, exec_time, bestM)
 
-
-
-
-
-
-	for i in range (1):
-		index = resultado_filtro[0][i][1]
-		print(resultado_filtro[0][i])
-		print(f'index: {index}')
-		dataset = np.delete(dataset, index, axis = 1)
-
-	# print(dataset)
-
-	Jmin = 2147483647     	# int_max do R
-	bestL = 0				# melhor valor de L_resp
-	bestM = 0				# melhor valor de M_resp
-
-	for r in range(nRep):
-			centers = list(map(int, centersAll[r,].tolist()))
-
-			resp = MFCM(dataset, centers, 2)
-
-			J = resp[0]
-			L_resp = resp[1]
-			M_resp = resp[2]
-
-			if (Jmin > J):
-				Jmin = J
-				bestL = L_resp
-				bestM = M_resp
-
-			exec_time += resp[4]
-			print(f'MC: {i + 1}, Rep: {r + 1}')
-
-	resultado_filtro = variance_filter2(dataset, bestM, nClusters)
-	metricas = calculate_accuracy(bestL, ref, bestM)
-	listaMetricas.append(metricas)
-	print(f'\nMC {i + 1}: \nFR Index: {metricas[0]}\nARI: {metricas[1]}%\nF1 Score: {metricas[2]}%')
-
-	resultado_filtro[0].sort(key=lambda k : k[0])
-
-
-	# Plotando os resultados
-
-	x_axis = dataset[:, 0]  
-	y_axis = dataset[:, 1]
-
-	print(f'\n{resultado_filtro[1]}: ')					
-	for item in range(len(resultado_filtro[0])):
-		print(f'var{item + 1}: {resultado_filtro[0][item]}')
-
-	plot_results(x_axis, y_axis, bestL, ref, dataName, exec_time, bestM)
-
-	return [J, bestL, exec_time, bestM]
+	return [J, bestL, exec_time, bestM, dataset] # Retorna o dataset filtrado
 
 
 def selectDataset(id):

@@ -38,18 +38,18 @@ def experiment(indexData, mc, nRep, numVar):
 
 		for r in range(nRep):
 			centers = list(map(int, centersAll[r,].tolist()))
-
+	
 			resp = MFCM(dataset, centers, 2)
-
+	
 			J = resp[0]
 			L_resp = resp[1]
 			M_resp = resp[2]
-
+	
 			if (Jmin > J):
 				Jmin = J
 				bestL = L_resp
 				bestM = M_resp
-
+	
 			exec_time += resp[4]
 			print(f'MC: {i + 1}, Rep: {r + 1}')
 
@@ -78,21 +78,21 @@ def experiment(indexData, mc, nRep, numVar):
 	bestM = 0				# melhor valor de M_resp
 
 	for r in range(nRep):
-			centers = list(map(int, centersAll[r,].tolist()))
+		centers = list(map(int, centersAll[r,].tolist()))
 
-			resp = MFCM(dataset, centers, 2)
+		resp = MFCM(dataset, centers, 2)
 
-			J = resp[0]
-			L_resp = resp[1]
-			M_resp = resp[2]
+		J = resp[0]
+		L_resp = resp[1]
+		M_resp = resp[2]
 
-			if (Jmin > J):
-				Jmin = J
-				bestL = L_resp
-				bestM = M_resp
+		if (Jmin > J):
+			Jmin = J
+			bestL = L_resp
+			bestM = M_resp
 
-			exec_time += resp[4]
-			print(f'MC: {i + 1}, Rep: {r + 1}')
+		exec_time += resp[4]
+		print(f'MC: {i + 1}, Rep: {r + 1}')
 
 	# resultado_filtro = variance_filter(dataset, bestM, nClusters)
 	metricas = calculate_accuracy(bestL, ref, bestM)

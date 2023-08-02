@@ -33,15 +33,15 @@ def variance_filter(data, U, nClusters):
         aTotal = [] # Relevância total
         nObj = data.shape[0]
 
-        for j in range(0, nClusters):
+        for j in range(0, nClusters):  
             a = []
             for k in range(0, nObj):
                 u = U[i][k][j] # Acessa o grau de pertinência do objeto k ao cluster j em relação a variável i
                 a.append(u)
         
             a = np.asarray(a)
-            variancia = np.var(a)
-            aTotal.append(variancia)
+            var = np.var(a)
+            aTotal.append(var)
 
         aTotal = np.asarray(aTotal)
         # print(aTotal)
@@ -60,15 +60,11 @@ def apply_filter(dataset, result, n):
     for item in range(len(result[0])):
         print(f'Variável {result[0][item][1]}: {result[0][item][0]}')
 
-    deleted_vars = []
-    
-    for i in range(n):
-        index = result[0][i][1]
-        deleted_vars.append(index)
-        dataset = np.delete(dataset, index, axis = 1)
+    listaCorte = [result[0][i][1] for i in range(n)]
+    dataset = np.delete(dataset, listaCorte, axis = 1)
 
     print("\nVariáveis deletadas:")
-    for var in deleted_vars:
+    for var in listaCorte:
         print(f"Variável {var}")
 
     return dataset

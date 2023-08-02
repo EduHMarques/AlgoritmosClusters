@@ -1,7 +1,5 @@
 import numpy as np
 
-# MFCM Based Filters
-
 def sum_filter(data, U, nClusters):
     V = []
     nVar = data.shape[1]
@@ -61,15 +59,15 @@ def variance_filter2(data, U, nClusters):
         aTotal = [] # Relevância total
         nObj = data.shape[0]
 
-        for j in range(0, nClusters):
+        for j in range(0, nClusters):  
             a = []
             for k in range(0, nObj):
                 u = U[i][k][j] # Acessa o grau de pertinência do objeto k ao cluster j em relação a variável i
                 a.append(u)
         
             a = np.asarray(a)
-            variancia = np.var(a)
-            aTotal.append(variancia)
+            var = np.var(a)
+            aTotal.append(var)
 
         aTotal = np.asarray(aTotal)
         # print(aTotal)

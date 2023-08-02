@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def sum_filter(data, U, nClusters):
     V = []
     nVar = data.shape[1]
@@ -22,7 +21,6 @@ def sum_filter(data, U, nClusters):
         V.append(aTotal)
     
     return (V, 'Filtro por Somatório')
-
 
 def variance_filter(data, U, nClusters):
     V = []
@@ -60,15 +58,11 @@ def apply_filter(dataset, result, n):
     for item in range(len(result[0])):
         print(f'Variável {result[0][item][1]}: {result[0][item][0]}')
 
-    deleted_vars = []
-    
-    for i in range(n):
-        index = result[0][i][1]
-        deleted_vars.append(index)
-        dataset = np.delete(dataset, index, axis = 1)
+    listaCorte = [result[0][i][1] for i in range(n)]
+    dataset = np.delete(dataset, listaCorte, axis = 1)
 
     print("\nVariáveis deletadas:")
-    for var in deleted_vars:
+    for var in listaCorte:
         print(f"Variável {var}")
-
+        
     return dataset

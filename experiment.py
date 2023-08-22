@@ -28,6 +28,7 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 			Jmin = J
 			bestL = L_resp
 			bestM = M_resp
+			# print(f'Conv criterio: {Jmin}')
 
 		exec_time += resp[4]
 		print(f'MC: {mc_i + 1}, Rep: {r + 1}')
@@ -45,6 +46,8 @@ def experiment(indexData, mc, nRep, numVar):
 	listaMetricas = []
 
 	## Monte Carlo
+	Jmin = 2147483647
+	centersAll = []
 	for i in range(mc):
 		synthetic = selectDataset(indexData)
 		dataset = synthetic[0]
@@ -55,12 +58,18 @@ def experiment(indexData, mc, nRep, numVar):
 		nObj = len(dataset)
 		print(f'Num var: {len(dataset[0])}')
 
-		centersAll = np.zeros((nRep, nClusters))
+		centersMC = np.zeros((nRep, nClusters))
 
 		for c in range(nRep):
-			centersAll[c] = random.sample(range(1, nObj), nClusters)
+			centersMC[c] = random.sample(range(1, nObj), nClusters)
 
-		result = execute(nRep, dataset, centersAll, i, exec_time)
+		clustering = execute(nRep, dataset, centersMC, i, exec_time)
+
+		if clustering['Jmin'] < Jmin:
+			Jmin = clustering['Jmin']
+			result = clustering
+			centersAll = centersMC
+
 
 	## Obtendo resultados
 	resultado_filtro = variance_filter(dataset, result['bestM'], nClusters)
@@ -82,7 +91,6 @@ def experiment(indexData, mc, nRep, numVar):
 	y_axis = dataset[:, y_var]
 
 	plot1 = [x_axis, y_axis, result['bestL'], result['exec_time']]
-	# plot_results(x_axis, y_axis, result['bestL'], ref, dataName, exec_time, result['bestM'])
 
 	## Aplicando filtro
 	dataset_antigo = dataset
@@ -165,7 +173,7 @@ def plot_results(p1, p2, ref, dataset_name, exec_time, U, dataset, dataset_antig
 
 # definindo a função main no python
 if __name__ == "__main__":
-	mc = 1
+	mc = 3
 	nRep = 50
 
-	result = experiment(14, mc, nRep, 1)
+	result = experiment(15, mc, nRep, 3)

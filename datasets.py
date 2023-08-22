@@ -642,6 +642,22 @@ def selectDataset(id):
 		ref = np.concatenate((refClass1, refClass2, refClass3, refClass4))
 
 		return [synthetic, ref, nClusters, "Artigo LFSC - 2007"]
+	elif id == 15:
+		# Wine
+
+		dataset = pd.read_csv("./datasets/wine.txt", sep=",", header=None)
+		dataset_ref = dataset.iloc[:,0].tolist()
+		
+		columns = [dataset.columns[0]]
+
+		dataset_unlabeled = dataset.drop(columns, axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+
+		nClusters = 3
+		
+		dataset_unlabeled = normalize(dataset_unlabeled)
+
+		return [dataset_unlabeled, dataset_ref, nClusters, "Wine Dataset"]
 	
 
 def normalize(dataset):

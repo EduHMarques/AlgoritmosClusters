@@ -8,6 +8,7 @@ import random
 from datasets import selectDataset
 from FCM import FCM
 from MFCM import MFCM
+from KMeans import KMeans
 from filters import *
 
 def execute(nRep, dataset, centersAll, mc_i, exec_time):
@@ -36,6 +37,77 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 	dict = {'Jmin': Jmin, 'bestL': bestL, 'bestM': bestM, 'exec_time': exec_time}
 	
 	return dict
+
+def exec_kmeans(K, nRep, dataset):
+	k = KMeans(K, nRep)
+	result, time = k.predict(dataset)
+
+	return [result, time, "KMeans"]
+
+def exec_mfcm(indexData, mc, nRep):
+	
+	## Inicializando variáveis
+	exec_time = 0
+	result = {}
+
+	## Monte Carlo
+	Jmin = 2147483647
+	centersAll = []
+	
+	for i in range(mc):
+		synthetic = selectDataset(indexData)
+		dataset = synthetic[0]
+		ref = synthetic[1]
+		nClusters = synthetic[2]
+		dataName = synthetic[3]
+
+		nObj = len(dataset)
+		# print(f'Num var: {len(dataset[0])}')
+
+		centersMC = np.zeros((nRep, nClusters))
+
+		for c in range(nRep):
+			centersMC[c] = random.sample(range(1, nObj), nClusters)
+
+		clustering = execute(nRep, dataset, centersMC, i, exec_time)
+
+		if clustering['Jmin'] < Jmin:
+			Jmin = clustering['Jmin']
+			result = clustering
+			centersAll = centersMC
+
+	info = [nClusters, ref]
+	
+	return (result, info)
+	
+def run_filter(dataset, result, info, numVar):
+	
+	listaMetricas = []
+	
+	## Obtendo resultados
+	resultado_filtro = variance_filter(dataset, result['bestM'], info[0])
+	metricas = calculate_accuracy(result['bestL'], info[1], result['bestM'], dataset)
+	listaMetricas.append(metricas)
+
+	print(f'\nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
+
+	## Gerando plot original (sem filtro aplicado)
+	resultado_filtro[0].sort(key=lambda k : k[0])
+
+	x_var = resultado_filtro[0][-1][1]
+	y_var = resultado_filtro[0][-2][1]
+
+	print(f'Eixos: {x_var}, {y_var}')
+	# x_axis = dataset[:, x_var] 
+	# y_axis = dataset[:, y_var]
+
+	plot = [x_var, y_var, result['bestL'], result['exec_time']]
+
+	## Aplicando filtro
+	# dataset_antigo = dataset
+	dataset = apply_filter(dataset, resultado_filtro, numVar)
+
+	return [dataset, plot]
 
 def experiment(indexData, mc, nRep, numVar):
 
@@ -70,7 +142,6 @@ def experiment(indexData, mc, nRep, numVar):
 			result = clustering
 			centersAll = centersMC
 
-
 	## Obtendo resultados
 	resultado_filtro = variance_filter(dataset, result['bestM'], nClusters)
 	metricas = calculate_accuracy(result['bestL'], ref, result['bestM'], dataset)
@@ -95,34 +166,7 @@ def experiment(indexData, mc, nRep, numVar):
 	## Aplicando filtro
 	dataset_antigo = dataset
 	dataset = apply_filter(dataset, resultado_filtro, numVar)
-	result = execute(nRep, dataset, centersAll, 0, 0)
-
-	## Obtendo resultados
-	resultado_filtro = variance_filter(dataset, result['bestM'], nClusters)
-	# metricas = calculate_accuracy(result['bestL'], ref, result['bestM'])
-	# listaMetricas.append(metricas)
-	print(f'\nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
-
-	## Gerando segundo plot
-	resultado_filtro[0].sort(key=lambda k : k[0])
-
-	x_var = resultado_filtro[0][-1][1]
-	y_var = resultado_filtro[0][-2][1]
-
-	print(f'Eixos: {x_var}, {y_var}')
-	x_axis = dataset[:, x_var]  
-	y_axis = dataset[:, y_var]
-
-	print(f'\n{resultado_filtro[1]}: ')					
-	for item in range(len(resultado_filtro[0])):
-		print(f'var{item + 1}: {resultado_filtro[0][item]}')
-
-	plot2 = [x_axis, y_axis, result['bestL'], result['exec_time']]
-
-	## Plot final
-	plot_results(plot1, plot2, ref, dataName, 0, 0, dataset, dataset_antigo)
-
-	# return [J, bestL, exec_time, bestM]
+	result = exec_kmeans(4, nRep, ref, dataset, dataset_antigo)
 
 def calculate_accuracy(L, ref, U, dataset):
 	ari = adjusted_rand_score(L, ref) * 100
@@ -132,7 +176,7 @@ def calculate_accuracy(L, ref, U, dataset):
 
 	return [ari, nmi, silhouette, db]
 
-def plot_results(p1, p2, ref, dataset_name, exec_time, U, dataset, dataset_antigo):
+def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_antigo):
 	fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
 	# fig.subplots_adjust(bottom=0.25)
@@ -144,10 +188,15 @@ def plot_results(p1, p2, ref, dataset_name, exec_time, U, dataset, dataset_antig
 	ax_info = axes[1, 1]
 
 	# Plota resultados
-	ax_top_left.scatter(p1[0], p1[1], c=ref, label='Referência')
-	ax_top_right.scatter(p1[0], p1[1], c=p1[2], label=f'{dataset_name} - Sem Filtro')
-	ax_bottom.scatter(p2[0], p2[1], c=p2[2], label=f'{dataset_name} - Com Filtro')
-	# ax_info
+	x_axis = dataset_antigo[:, plot_info[0]]
+	y_axis = dataset_antigo[:, plot_info[1]]
+
+	ax_top_left.scatter(x_axis, y_axis, c=ref, label='Referência')
+	ax_top_right.scatter(x_axis, y_axis, c=plot_info[2], label=f'{dataset_name} - Sem Filtro')
+	
+	x_axis = dataset[:, 0]
+	y_axis = dataset[:, 1]
+	ax_bottom.scatter(x_axis, y_axis, c=plot_info[4], label=f'{dataset_name} - Com Filtro')
 
 	# Adiciona títulos aos subplots
 	ax_top_left.set_title('Referência', weight='bold')
@@ -155,11 +204,11 @@ def plot_results(p1, p2, ref, dataset_name, exec_time, U, dataset, dataset_antig
 	ax_bottom.set_title(f'{dataset_name} - Com Filtro', weight='bold')
 
 	# Remove o gráfico no canto inferior direito e adiciona métricas
-	acc1 = calculate_accuracy(p1[2], ref, U, dataset_antigo)
-	acc2 = calculate_accuracy(p2[2], ref, U, dataset)
+	acc1 = calculate_accuracy(plot_info[2], ref, U, dataset_antigo)
+	acc2 = calculate_accuracy(plot_info[4], ref, U, dataset)
 	
-	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], p1[3]))
-	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], p2[3]))
+	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0]))
+	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1]))
 	
 	# Ajusta os espaçamentos entre os subplots
 	ax_info.text(0, 0.75, metrics_info1, va='center', fontsize=11)
@@ -173,7 +222,21 @@ def plot_results(p1, p2, ref, dataset_name, exec_time, U, dataset, dataset_antig
 
 # definindo a função main no python
 if __name__ == "__main__":
-	mc = 3
+	mc = 1
 	nRep = 50
+	indexData = 1
+	numVar = 2
 
-	result = experiment(15, mc, nRep, 3)
+	# result = experiment(14, mc, nRep, 2)
+	result, info = exec_mfcm(indexData, mc, nRep)
+	
+	aux = selectDataset(indexData)
+	dataset, ref = aux[0], aux[1] 
+	dataset_novo, plot = run_filter(dataset, result, info, numVar)
+
+	## KMeans
+	K = 3
+	result_kmeans, time_kmeans, name = exec_kmeans(K, nRep, dataset_novo)
+	plot.append(result_kmeans)
+
+	plot_results(plot, ref, name, (result['exec_time'], time_kmeans), 0, dataset_novo, dataset)

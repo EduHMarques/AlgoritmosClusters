@@ -1,8 +1,6 @@
 import numpy as np
 from timeit import default_timer as timer
 
-np.random.seed(42)
-
 def euclidean_distance(x1, x2):
     return np.sqrt(np.sum(np.square(x1-x2)))
 
@@ -15,8 +13,10 @@ class KMeans:
         self.clusters = [[] for _ in range(self.K)]
         self.centroids = []
 
-    def predict(self, data):
+    def predict(self, data, seed):
         start = timer()
+
+        np.random.seed(seed)
 
         self.data = data
         self.nObj, self.nVar = data.shape
@@ -43,7 +43,9 @@ class KMeans:
 
         end = timer()
 
-        return (self.get_clusters_labels(self.clusters), end-start)
+        time = end - start
+
+        return (self.get_clusters_labels(self.clusters), time)
 
     def get_clusters_labels(self, clusters):
         labels = np.empty(self.nObj)

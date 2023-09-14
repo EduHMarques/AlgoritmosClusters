@@ -11,6 +11,9 @@ from MFCM import MFCM
 from KMeans import KMeans
 from filters import *
 
+SEED = 41
+np.random.seed(SEED)
+
 def execute(nRep, dataset, centersAll, mc_i, exec_time):
 	Jmin = 2147483647	# int_max do R
 	bestL = 0			# melhor valor de L_resp
@@ -29,7 +32,6 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 			Jmin = J
 			bestL = L_resp
 			bestM = M_resp
-			# print(f'Conv criterio: {Jmin}')
 
 		exec_time += resp[4]
 		print(f'MC: {mc_i + 1}, Rep: {r + 1}')
@@ -37,12 +39,6 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 	dict = {'Jmin': Jmin, 'bestL': bestL, 'bestM': bestM, 'exec_time': exec_time}
 	
 	return dict
-
-def exec_kmeans(K, nRep, dataset):
-	k = KMeans(K, nRep)
-	result, time = k.predict(dataset)
-
-	return [result, time, "KMeans"]
 
 def exec_mfcm(indexData, mc, nRep):
 	
@@ -75,18 +71,22 @@ def exec_mfcm(indexData, mc, nRep):
 			Jmin = clustering['Jmin']
 			result = clustering
 			centersAll = centersMC
+	
+	return (result, ref)
 
-	info = [nClusters, ref]
+def exec_kmeans(K, nRep, dataset):
+	k = KMeans(K, nRep,)
+	result, time = k.predict(dataset, SEED)
+
+	return [result, time, "KMeans"]
 	
-	return (result, info)
-	
-def run_filter(dataset, result, info, numVar):
+def run_filter(dataset, result, ref, numVar, numClusters):
 	
 	listaMetricas = []
 	
 	## Obtendo resultados
-	resultado_filtro = variance_filter(dataset, result['bestM'], info[0])
-	metricas = calculate_accuracy(result['bestL'], info[1], result['bestM'], dataset)
+	resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
+	metricas = calculate_accuracy(result['bestL'], ref, result['bestM'], dataset)
 	listaMetricas.append(metricas)
 
 	print(f'\nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
@@ -192,11 +192,11 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 	y_axis = dataset_antigo[:, plot_info[1]]
 
 	ax_top_left.scatter(x_axis, y_axis, c=ref, label='Referência')
-	ax_top_right.scatter(x_axis, y_axis, c=plot_info[2], label=f'{dataset_name} - Sem Filtro')
+	ax_top_right.scatter(x_axis, y_axis, c=plot_info[4], label=f'{dataset_name} - Sem Filtro')
 	
 	x_axis = dataset[:, 0]
 	y_axis = dataset[:, 1]
-	ax_bottom.scatter(x_axis, y_axis, c=plot_info[4], label=f'{dataset_name} - Com Filtro')
+	ax_bottom.scatter(x_axis, y_axis, c=plot_info[5], label=f'{dataset_name} - Com Filtro')
 
 	# Adiciona títulos aos subplots
 	ax_top_left.set_title('Referência', weight='bold')
@@ -204,8 +204,8 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 	ax_bottom.set_title(f'{dataset_name} - Com Filtro', weight='bold')
 
 	# Remove o gráfico no canto inferior direito e adiciona métricas
-	acc1 = calculate_accuracy(plot_info[2], ref, U, dataset_antigo)
-	acc2 = calculate_accuracy(plot_info[4], ref, U, dataset)
+	acc1 = calculate_accuracy(plot_info[4], ref, U, dataset_antigo)
+	acc2 = calculate_accuracy(plot_info[5], ref, U, dataset)
 	
 	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0]))
 	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1]))
@@ -228,15 +228,19 @@ if __name__ == "__main__":
 	numVar = 2
 
 	# result = experiment(14, mc, nRep, 2)
-	result, info = exec_mfcm(indexData, mc, nRep)
-	
+	result, ref = exec_mfcm(indexData, mc, nRep)
 	aux = selectDataset(indexData)
-	dataset, ref = aux[0], aux[1] 
-	dataset_novo, plot = run_filter(dataset, result, info, numVar)
+	dataset, ref, nclusters = aux[0], aux[1], aux[2]
+
+	dataset_novo, plot = run_filter(dataset, result, ref, numVar, nclusters)
 
 	## KMeans
-	K = 3
-	result_kmeans, time_kmeans, name = exec_kmeans(K, nRep, dataset_novo)
-	plot.append(result_kmeans)
+	K = nclusters
+	print('Executando KMEANS sem filtro')
+	raw_result, raw_time, raw_name = exec_kmeans(nclusters, nRep, dataset)
+	print('Executando KMEANS com filtro')
+	filtered_result, filtered_time, filtered_name = exec_kmeans(K, nRep, dataset_novo)
+	plot.append(raw_result)
+	plot.append(filtered_result)
 
-	plot_results(plot, ref, name, (result['exec_time'], time_kmeans), 0, dataset_novo, dataset)
+	plot_results(plot, ref, raw_name, (result['exec_time'], filtered_time), 0, dataset_novo, dataset)

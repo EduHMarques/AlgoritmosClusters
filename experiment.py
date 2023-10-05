@@ -11,13 +11,15 @@ from MFCM import MFCM
 from KMeans import KMeans
 from filters import *
 
-SEED = 41
+SEED = 40
 np.random.seed(SEED)
+random.seed(SEED)
 
 def execute(nRep, dataset, centersAll, mc_i, exec_time):
 	Jmin = 2147483647	# int_max do R
 	bestL = 0			# melhor valor de L_resp
 	bestM = 0			# melhor valor de M_resp
+	best_centers = 0
 
 	for r in range(nRep):
 		centers = list(map(int, centersAll[r,].tolist()))
@@ -32,11 +34,13 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 			Jmin = J
 			bestL = L_resp
 			bestM = M_resp
+			best_centers = centers
 
 		exec_time += resp[4]
 		print(f'MC: {mc_i + 1}, Rep: {r + 1}')
 		
-	dict = {'Jmin': Jmin, 'bestL': bestL, 'bestM': bestM, 'exec_time': exec_time}
+	dict = {'Jmin': Jmin, 'bestL': bestL, 'bestM': bestM, 'exec_time': exec_time, 'best_centers': centersAll}
+	# Retorna os centers de todas as iterações para o KMeans (mudar para criar uma nova lista exclusiva para o KMeans)
 	
 	return dict
 
@@ -45,11 +49,10 @@ def exec_mfcm(indexData, mc, nRep):
 	## Inicializando variáveis
 	exec_time = 0
 	result = {}
+	Jmin = 2147483647
+	centers = 0
 
 	## Monte Carlo
-	Jmin = 2147483647
-	centersAll = []
-	
 	for i in range(mc):
 		synthetic = selectDataset(indexData)
 		dataset = synthetic[0]
@@ -58,7 +61,6 @@ def exec_mfcm(indexData, mc, nRep):
 		dataName = synthetic[3]
 
 		nObj = len(dataset)
-		# print(f'Num var: {len(dataset[0])}')
 
 		centersMC = np.zeros((nRep, nClusters))
 
@@ -70,15 +72,26 @@ def exec_mfcm(indexData, mc, nRep):
 		if clustering['Jmin'] < Jmin:
 			Jmin = clustering['Jmin']
 			result = clustering
-			centersAll = centersMC
+			centers = clustering['best_centers']
 	
-	return (result, ref)
+	return (result, ref, centers)
 
-def exec_kmeans(K, nRep, dataset):
-	k = KMeans(K, nRep,)
-	result, time = k.predict(dataset, SEED)
+def exec_kmeans(K, nRep, dataset, centers):
 
-	return [result, time, "KMeans"]
+	bestResult = 0
+	Jmin = 2147483647
+
+	for r in range(nRep):
+		centersRep = list(map(int, centers[r,].tolist()))
+		k = KMeans(K, nRep,)
+		result, time, J = k.predict(dataset, SEED, centersRep)
+
+		if J < Jmin:
+			print(f'Jmin atualizado: {J}')
+			Jmin = J
+			bestResult = result
+
+	return [bestResult, time, "KMeans"]
 	
 def run_filter(dataset, result, ref, numVar, numClusters):
 	
@@ -149,8 +162,6 @@ def experiment(indexData, mc, nRep, numVar):
 
 	print(f'\nMC {i + 1}: \nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
 
-	# print(f'\nMC {i + 1}: \nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
-
 	## Gerando primeiro plot
 	resultado_filtro[0].sort(key=lambda k : k[0])
 
@@ -207,8 +218,10 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 	acc1 = calculate_accuracy(plot_info[4], ref, U, dataset_antigo)
 	acc2 = calculate_accuracy(plot_info[5], ref, U, dataset)
 	
-	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0]))
-	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\n\nTempo de Execução: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1]))
+	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0]))
+	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1]))
+
+	atualizaTxt(f'{dataset_name}.txt', [metrics_info1, metrics_info2])
 	
 	# Ajusta os espaçamentos entre os subplots
 	ax_info.text(0, 0.75, metrics_info1, va='center', fontsize=11)
@@ -220,15 +233,22 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 
 	plt.show()
 
+def atualizaTxt(nome, lista):
+	arquivo = open(nome, 'a')
+	arquivo.write('----------------------------------------\n\n')
+	for i in range(len(lista)):
+		arquivo.write(str(lista[i]) + '\n\n')
+	arquivo.close()
+
 # definindo a função main no python
 if __name__ == "__main__":
 	mc = 1
 	nRep = 50
-	indexData = 1
-	numVar = 2
+	indexData = 8
+	numVar = 0
 
 	# result = experiment(14, mc, nRep, 2)
-	result, ref = exec_mfcm(indexData, mc, nRep)
+	result, ref, centers = exec_mfcm(indexData, mc, nRep)
 	aux = selectDataset(indexData)
 	dataset, ref, nclusters = aux[0], aux[1], aux[2]
 
@@ -237,10 +257,10 @@ if __name__ == "__main__":
 	## KMeans
 	K = nclusters
 	print('Executando KMEANS sem filtro')
-	raw_result, raw_time, raw_name = exec_kmeans(nclusters, nRep, dataset)
+	raw_result, raw_time, raw_name = exec_kmeans(K, nRep, dataset, centers)
 	print('Executando KMEANS com filtro')
-	filtered_result, filtered_time, filtered_name = exec_kmeans(K, nRep, dataset_novo)
+	filtered_result, filtered_time, filtered_name = exec_kmeans(K, nRep, dataset_novo, centers)
 	plot.append(raw_result)
 	plot.append(filtered_result)
 
-	plot_results(plot, ref, raw_name, (result['exec_time'], filtered_time), 0, dataset_novo, dataset)
+	plot_results(plot, ref, raw_name, (raw_time, filtered_time), 0, dataset_novo, dataset)

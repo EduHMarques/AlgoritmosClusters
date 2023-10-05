@@ -13,7 +13,7 @@ class KMeans:
         self.clusters = [[] for _ in range(self.K)]
         self.centroids = []
 
-    def predict(self, data, seed):
+    def predict(self, data, seed, centers):
         start = timer()
 
         np.random.seed(seed)
@@ -25,8 +25,13 @@ class KMeans:
 
         # indices_amostras: lista de tamanho K que armazena valores entre 0 e nObj
         # replace = false para evitar valores (índices) repetidos
-        indices_amostras = np.random.choice(self.nObj, self.K, replace=False)
+
+        indices_amostras = centers
         self.centroids = [self.data[ind] for ind in indices_amostras]
+        # print(indices_amostras)
+        # self.centroids = centers
+
+        # print(f'Centers kmeans: {centers}')
 
         # Algoritmo
         for _ in range(self.nRep):
@@ -41,11 +46,14 @@ class KMeans:
             if self.converged(c_old, self.centroids):
                 break
 
-        end = timer()
+        # print(f'Clusters: {self.clusters}')
 
+        end = timer()
         time = end - start
 
-        return (self.get_clusters_labels(self.clusters), time)
+        J = self.criterion(self.clusters, self.centroids)
+
+        return (self.get_clusters_labels(self.clusters), time, J)
 
     def get_clusters_labels(self, clusters):
         labels = np.empty(self.nObj)
@@ -80,6 +88,15 @@ class KMeans:
             centroids[ind] = cluster_mean
 
         return centroids
+    
+    def criterion(self, clusters, centroids):
+        J = 0
+
+        for ind, cluster in enumerate(clusters):
+            for obj_ind in cluster:
+                J += euclidean_distance(self.data[obj_ind], centroids[ind])
+
+        return J
     
     def converged(self, c_old, c_new):
         distances = [euclidean_distance(c_old[i], c_new[i]) for i in range(self.K)]

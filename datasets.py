@@ -355,7 +355,6 @@ def selectDataset(id):
 		ref = np.concatenate((refClass1, refClass2, refClass3))
 
 		return [synthetic, ref, nClusters, "Pimentel2013 - Data 4"]
-        
 	
 	elif id == 9:
 		# KC2

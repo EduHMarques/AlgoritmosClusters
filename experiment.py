@@ -11,7 +11,7 @@ from MFCM import MFCM
 from KMeans import KMeans
 from filters import *
 
-SEED = 40
+SEED = 45
 np.random.seed(SEED)
 random.seed(SEED)
 
@@ -221,7 +221,7 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0]))
 	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1]))
 
-	atualizaTxt(f'{dataset_name}.txt', [metrics_info1, metrics_info2])
+	atualizaTxt(f'logs/{dataset_name}.txt', [metrics_info1, metrics_info2])
 	
 	# Ajusta os espaçamentos entre os subplots
 	ax_info.text(0, 0.75, metrics_info1, va='center', fontsize=11)

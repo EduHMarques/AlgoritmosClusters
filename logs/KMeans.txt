@@ -17,16 +17,16 @@ Tempo de Execucao: 0.07s
 ----------------------------------------
 
 Resultado sem filtro:
-ARI: 86.87%
-NMI: 0.82
-Silhoutte: 0.53
-DB: 0.65
-Tempo de Execucao: 0.07s
+ARI: 80.24%
+NMI: 0.76
+Silhoutte: 0.50
+DB: 0.69
+Tempo de Execucao: 0.05s
 
 Resultado com filtro:
-ARI: 86.87%
-NMI: 0.82
-Silhoutte: 0.53
-DB: 0.65
-Tempo de Execucao: 0.07s
+ARI: 80.24%
+NMI: 0.76
+Silhoutte: 0.50
+DB: 0.69
+Tempo de Execucao: 0.05s
 

@@ -26,9 +26,11 @@ def selectDataset(id):
 
 		dataset_unlabeled = dataset.drop(columns, axis=1)
 		dataset_unlabeled = dataset_unlabeled.to_numpy()
-		
+
 		nClusters = 6
 		
+		dataset_unlabeled = normalize(dataset_unlabeled)
+
 		return [dataset_unlabeled, dataset_ref, nClusters, "Glass Dataset"]
 	elif id == 3:
 		# Dataset Sintético
@@ -196,7 +198,7 @@ def selectDataset(id):
 		
 		ref = np.concatenate((refClass1, refClass2, refClass3))
 
-		return [synthetic, ref, nClusters, "Dataset Sintético 3"] 
+		return [synthetic, ref, nClusters, "Pimentel2013 - Data 1"] 
 	
 	elif id == 6:
 		# (Dataset 2 do 'pimentel2013')
@@ -214,18 +216,17 @@ def selectDataset(id):
 		mu_21 = 30
 		mu_22 = 0
 
-		mu_31 = 15
-		mu_32 = -3
-
+		mu_31 = 10
+		mu_32 = 25
 		
 		sigma_11 = 10
-		sigma_12 = 2
+		sigma_12 = 10
 		
-		sigma_21 = 10
-		sigma_22 = 2
+		sigma_21 = 7
+		sigma_22 = 7
 		
-		sigma_31 = 10
-		sigma_32 = 2
+		sigma_31 = 4
+		sigma_32 = 4
 
 
 		x1 = np.random.normal(mu_11, sigma_11, n1)
@@ -250,10 +251,112 @@ def selectDataset(id):
 		
 		ref = np.concatenate((refClass1, refClass2, refClass3))
 
-		return [synthetic, ref, nClusters, "Dataset Sintético 4"]
-        
-	
+		return [synthetic, ref, nClusters, "Pimentel2013 - Data 2"]
 	elif id == 7:
+		# (Dataset 3 do 'pimentel2013')
+		n1 = 100
+		n2 = 100
+		n3 = 100
+		
+		n = n1 + n2 + n3 
+		
+		nClusters = 3
+		
+		mu_11 = 0
+		mu_12 = 0
+
+		mu_21 = 15
+		mu_22 = 3
+
+		mu_31 = 15
+		mu_32 = -3
+		
+		sigma_11 = 10
+		sigma_12 = 2
+		
+		sigma_21 = 10
+		sigma_22 = 2
+		
+		sigma_31 = 10
+		sigma_32 = 2
+
+		x1 = np.random.normal(mu_11, sigma_11, n1)
+		y1 = np.random.normal(mu_12, sigma_12, n1)
+		
+		x2 = np.random.normal(mu_21, sigma_21, n2)
+		y2 = np.random.normal(mu_22, sigma_22, n2)
+		
+		x3 = np.random.normal(mu_31, sigma_31, n3)
+		y3 = np.random.normal(mu_32, sigma_32, n3)
+
+
+		class1 = np.column_stack((x1, y1))
+		class2 = np.column_stack((x2, y2))
+		class3 = np.column_stack((x3, y3))
+
+		synthetic = np.vstack((class1, class2, class3))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		refClass3 = np.repeat(3, n3)
+		
+		ref = np.concatenate((refClass1, refClass2, refClass3))
+
+		return [synthetic, ref, nClusters, "Pimentel2013 - Data 3"]
+	elif id == 8:
+		# (Dataset 4 do 'pimentel2013')
+		n1 = 150
+		n2 = 100
+		n3 = 50
+		
+		n = n1 + n2 + n3 
+		
+		nClusters = 3
+		
+		mu_11 = 0
+		mu_12 = 0
+
+		mu_21 = 15
+		mu_22 = 0
+
+		mu_31 = -15
+		mu_32 = 0
+		
+		sigma_11 = 4
+		sigma_12 = 4
+		
+		sigma_21 = 4
+		sigma_22 = 4
+		
+		sigma_31 = 4
+		sigma_32 = 4
+
+
+		x1 = np.random.normal(mu_11, sigma_11, n1)
+		y1 = np.random.normal(mu_12, sigma_12, n1)
+		
+		x2 = np.random.normal(mu_21, sigma_21, n2)
+		y2 = np.random.normal(mu_22, sigma_22, n2)
+		
+		x3 = np.random.normal(mu_31, sigma_31, n3)
+		y3 = np.random.normal(mu_32, sigma_32, n3)
+
+
+		class1 = np.column_stack((x1, y1))
+		class2 = np.column_stack((x2, y2))
+		class3 = np.column_stack((x3, y3))
+
+		synthetic = np.vstack((class1, class2, class3))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		refClass3 = np.repeat(3, n3)
+		
+		ref = np.concatenate((refClass1, refClass2, refClass3))
+
+		return [synthetic, ref, nClusters, "Pimentel2013 - Data 4"]
+	
+	elif id == 9:
 		# KC2
 		
 		dataset = pd.read_csv("datasets/kc2.txt", sep=",", header=None)
@@ -267,7 +370,7 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 		
 		return [dataset_unlabeled, dataset_ref, nClusters, "KC2 Dataset"]
-	elif id == 8:
+	elif id == 10:
 		# Dataset Sintético Correlacionado (gambiarra)
 
 		n1 = 50
@@ -318,7 +421,7 @@ def selectDataset(id):
 
 		return [synthetic, ref, nClusters, "Dataset Sintético 6"]
 	
-	elif id == 10:
+	elif id == 11:
 		# Dataset Sintético
 
 		n1 = 50
@@ -359,7 +462,7 @@ def selectDataset(id):
 
 		return [synthetic, ref, nClusters, "2 elipses HOR."]
 	
-	elif id == 11:
+	elif id == 12:
 		# Dataset Sintético
 
 		n1 = 50
@@ -388,8 +491,8 @@ def selectDataset(id):
 		y2 = np.random.normal(mu_22, sigma_22, n2)
 		
 
-		# class1 = np.column_stack((x1, y1))
-		# class2 = np.column_stack((x2, y2))
+		class1 = np.column_stack((x1, y1))
+		class2 = np.column_stack((x2, y2))
 
 		synthetic = np.vstack((class1, class2))
 
@@ -400,7 +503,7 @@ def selectDataset(id):
 
 		return [synthetic, ref, nClusters, "2 elipses VER."]
 	
-	elif id == 12:
+	elif id == 13:
 		# Dataset Sintético
 
 		n1 = 50
@@ -448,6 +551,112 @@ def selectDataset(id):
 		ref = np.concatenate((refClass1, refClass2))
 
 		return [synthetic, ref, nClusters, "2 elipses 3D"]
+	elif id == 14:
+		# Dataset do "Localized feature selection for clustering - 2007"
+
+		n1 = 100
+		n2 = 100
+		n3 = 100
+		n4 = 100
+		
+		n = n1 + n2+ n3 + n4
+		
+		nClusters = 4
+		
+		mu_11 = 0.5 * 10
+		mu_12 = -0.5 * 10
+		mu_13 = 0
+		mu_14 = 0
+
+		mu_21 = -0.5 * 10
+		mu_22 = -0.5 * 10
+		mu_23 = 0
+		mu_24 = 0
+
+		mu_31 = 0
+		mu_32 = 0.5 * 10
+		mu_33 = 0.5 * 10
+		mu_34 = 0
+
+		mu_41 = 0
+		mu_42 = 0.5 * 10
+		mu_43 = -0.5 * 10
+		mu_44 = 0
+		
+		sigma_11 = 0.2 * 10
+		sigma_12 = 0.2 * 10
+		sigma_13 = 0.6 * 10
+		sigma_14 = 0.6 * 10
+		
+		sigma_21 = 0.2 * 10
+		sigma_22 = 0.2 * 10
+		sigma_23 = 0.6 * 10
+		sigma_24 = 0.6 * 10
+
+		sigma_31 = 0.6 * 10
+		sigma_32 = 0.2 * 10
+		sigma_33 = 0.2 * 10
+		sigma_34 = 0.6 * 10
+
+		sigma_41 = 0.6 * 10
+		sigma_42 = 0.2 * 10
+		sigma_43 = 0.2 * 10
+		sigma_44 = 0.6 * 10
+		
+		x1 = np.random.normal(mu_11, sigma_11, n1)
+		y1 = np.random.normal(mu_12, sigma_12, n1)
+		z1 = np.random.normal(mu_13, sigma_13, n1)
+		w1 = np.random.normal(mu_14, sigma_14, n1)
+		
+		x2 = np.random.normal(mu_21, sigma_21, n2)
+		y2 = np.random.normal(mu_22, sigma_22, n2)
+		z2 = np.random.normal(mu_23, sigma_23, n2)
+		w2 = np.random.normal(mu_24, sigma_24, n2)
+
+		x3 = np.random.normal(mu_31, sigma_31, n3)
+		y3 = np.random.normal(mu_32, sigma_32, n3)
+		z3 = np.random.normal(mu_33, sigma_33, n3)
+		w3 = np.random.normal(mu_34, sigma_34, n3)
+
+		x4 = np.random.normal(mu_41, sigma_41, n4)
+		y4 = np.random.normal(mu_42, sigma_42, n4)
+		z4 = np.random.normal(mu_43, sigma_43, n4)
+		w4 = np.random.normal(mu_44, sigma_44, n4)
+
+		class1 = np.column_stack((x1, y1, z1, w1))
+		class2 = np.column_stack((x2, y2, z2, w2))
+		class3 = np.column_stack((x3, y3, z3, w3))
+		class4 = np.column_stack((x4, y4, z4, w4))
+		
+		# class1 = np.column_stack((x1, z1))
+		# class2 = np.column_stack((x2, z2))
+
+		synthetic = np.vstack((class1, class2, class3, class4))
+
+		refClass1 = np.repeat(1, n1)
+		refClass2 = np.repeat(2, n2)
+		refClass3 = np.repeat(3, n3)
+		refClass4 = np.repeat(4, n4)
+		
+		ref = np.concatenate((refClass1, refClass2, refClass3, refClass4))
+
+		return [synthetic, ref, nClusters, "Artigo LFSC - 2007"]
+	elif id == 15:
+		# Wine
+
+		dataset = pd.read_csv("./datasets/wine.txt", sep=",", header=None)
+		dataset_ref = dataset.iloc[:,0].tolist()
+		
+		columns = [dataset.columns[0]]
+
+		dataset_unlabeled = dataset.drop(columns, axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+
+		nClusters = 3
+		
+		dataset_unlabeled = normalize(dataset_unlabeled)
+
+		return [dataset_unlabeled, dataset_ref, nClusters, "Wine Dataset"]
 	
 
 def normalize(dataset):

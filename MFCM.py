@@ -44,7 +44,7 @@ def MFCM(data, centers, parM):
 
   end = timer()
 
-  resp = [J, L, Ubefore, count, end - start]
+  resp = [J, L, Ubefore, count, end - start, memb]
 
   return resp
 	
@@ -259,9 +259,11 @@ def computeAij(memberships):
 
 def getPartition(memberships):
   
-  L = []
+  # L = []
 
-  for object in memberships:
-    L.append(np.argmax(object) + 1)
+  # for object in memberships:
+  #   L.append(np.argmax(object) + 1)
+
+  L = [np.argmax(object) + 1 for object in memberships]
   
   return L

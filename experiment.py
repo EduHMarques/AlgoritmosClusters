@@ -244,7 +244,7 @@ def atualizaTxt(nome, lista):
 if __name__ == "__main__":
 	mc = 1
 	nRep = 50
-	indexData = 8
+	indexData = 16
 	numVar = 0
 
 	# result = experiment(14, mc, nRep, 2)

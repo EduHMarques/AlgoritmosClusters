@@ -30,3 +30,19 @@ Silhoutte: 0.50
 DB: 0.69
 Tempo de Execucao: 0.05s
 
+----------------------------------------
+
+Resultado sem filtro:
+ARI: 11.41%
+NMI: 0.10
+Silhoutte: 0.17
+DB: 1.69
+Tempo de Execucao: 0.18s
+
+Resultado com filtro:
+ARI: 11.41%
+NMI: 0.10
+Silhoutte: 0.17
+DB: 1.69
+Tempo de Execucao: 0.20s
+

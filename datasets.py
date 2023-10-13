@@ -657,6 +657,22 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 
 		return [dataset_unlabeled, dataset_ref, nClusters, "Wine Dataset"]
+	elif id == 16:
+		# Balance
+
+		dataset = pd.read_csv("./datasets/balance.txt", sep=",", header=None)
+		dataset_ref = dataset.iloc[:,0].tolist()
+		
+		columns = [dataset.columns[0]]
+
+		dataset_unlabeled = dataset.drop(columns, axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+
+		nClusters = 3
+		
+		dataset_unlabeled = normalize(dataset_unlabeled)
+
+		return [dataset_unlabeled, dataset_ref, nClusters, "Balance Dataset"]
 	
 
 def normalize(dataset):

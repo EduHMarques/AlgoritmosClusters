@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy.io import arff
 
 def selectDataset(id):
 	if id == 1:
@@ -673,8 +674,76 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 
 		return [dataset_unlabeled, dataset_ref, nClusters, "Balance Dataset"]
-	
+	elif id == 17:
+		# Scene | OPENML: ID 312 | 300 features
+		data = arff.loadarff('datasets/scene.arff')
+		
+		dataset = pd.DataFrame(data[0])
+		dataset[dataset.columns[-1]] = dataset.iloc[:,-1].astype(int)
+		dataset = dataset.drop(dataset.columns[294:299], axis=1)
 
+		dataset_ref = dataset.iloc[:,-1].tolist()
+
+		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+			
+		nClusters = 2
+		dataset_unlabeled = normalize(dataset_unlabeled)
+		
+		print("Dataset selecionado: Scene\n")
+		
+		return [dataset_unlabeled, dataset_ref, nClusters, "Scene Dataset"]
+	elif id == 18:
+		# Madelon | OPENML: ID 1485 | 500 features
+		data = arff.loadarff('datasets/madelon.arff')
+		dataset = pd.DataFrame(data[0])
+		dataset[dataset.columns[-1]] = dataset.iloc[:,-1].astype(int)
+
+		dataset_ref = dataset.iloc[:,-1].tolist()
+
+		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+			
+		nClusters = 2
+		dataset_unlabeled = normalize(dataset_unlabeled)
+		
+		print("Dataset selecionado: Madelon\n")
+		
+		return [dataset_unlabeled, dataset_ref, nClusters, "Madelon Dataset"]
+	elif id == 19:
+		# Hiva Agnostic | OPENML: ID 1039 | 1000 features
+		data = arff.loadarff('datasets/hiva_agnostic.arff')
+		dataset = pd.DataFrame(data[0])
+		dataset[dataset.columns[-1]] = dataset.iloc[:,-1].astype(int)
+
+		dataset_ref = dataset.iloc[:,-1].tolist()
+
+		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+			
+		nClusters = 2
+		dataset_unlabeled = normalize(dataset_unlabeled)
+		
+		print("Dataset selecionado: Hiva Agnostic\n")
+		
+		return [dataset_unlabeled, dataset_ref, nClusters, "Hiva Agnostic Dataset"]
+	elif id == 20:
+		# Musk (Version 1) | UCI Machine Learning Repository | 165 features
+		dataset = pd.read_csv('musk1.data', header=None)
+		dataset = dataset.drop(dataset.columns[[0, 1, -1]], axis=1)
+
+		dataset_ref = dataset.iloc[:,-1].tolist()
+
+		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+			
+		nClusters = 2
+		dataset_unlabeled = normalize(dataset_unlabeled)
+		
+		print("Dataset selecionado: Musk (Version 1)\n")
+		
+		return [dataset_unlabeled, dataset_ref, nClusters, "Musk (Version 1) Dataset"]
+	
 def normalize(dataset):
 	nRows = dataset.shape[0]
 	nCol = dataset.shape[1]

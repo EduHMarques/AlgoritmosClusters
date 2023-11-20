@@ -86,6 +86,8 @@ def exec_kmeans(K, nRep, dataset, centers):
 		k = KMeans(K, nRep,)
 		result, time, J = k.predict(dataset, SEED, centersRep)
 
+		print('Executando KMeans')
+
 		if J < Jmin:
 			print(f'Jmin atualizado: {J}')
 			Jmin = J
@@ -180,14 +182,14 @@ def experiment(indexData, mc, nRep, numVar):
 	result = exec_kmeans(4, nRep, ref, dataset, dataset_antigo)
 
 def calculate_accuracy(L, ref, U, dataset):
-	ari = adjusted_rand_score(L, ref) * 100
+	ari = adjusted_rand_score(L, ref)
 	nmi = normalized_mutual_info_score(ref, L)
 	silhouette = silhouette_score(dataset, L)
 	db = davies_bouldin_score(dataset, L)
 
 	return [ari, nmi, silhouette, db]
 
-def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_antigo):
+def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_antigo, datasetName):
 	fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
 	# fig.subplots_adjust(bottom=0.25)
@@ -218,10 +220,19 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 	acc1 = calculate_accuracy(plot_info[4], ref, U, dataset_antigo)
 	acc2 = calculate_accuracy(plot_info[5], ref, U, dataset)
 	
-	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0]))
-	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}%\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1]))
+	metrics_info1 = ("Resultado sem filtro:\nARI: {:.2f}\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0]))
+	metrics_info2 = ("Resultado com filtro:\nARI: {:.2f}\nNMI: {:.2f}\nSilhoutte: {:.2f}\nDB: {:.2f}\nTempo de Execucao: {:.2f}s".format(acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1]))
 
-	atualizaTxt(f'logs/{dataset_name}.txt', [metrics_info1, metrics_info2])
+	metrics_txt1 = [acc1[0], acc1[1], acc1[2], acc1[3], exec_time[0], datasetName]
+	metrics_txt2 = [acc2[0], acc2[1], acc2[2], acc2[3], exec_time[1], datasetName]
+
+	for i in range(len(metrics_txt1) - 1):
+		metrics_txt1[i] = round(metrics_txt1[i], 2)
+		metrics_txt2[i] = round(metrics_txt2[i], 2)
+
+	atualizaTxt(f'logs/{dataset_name}.txt', metrics_txt1)
+	atualizaTxt(f'logs/{dataset_name}.txt', metrics_txt2)
+	atualizaTxt(f'logs/{dataset_name}.txt', '')
 	
 	# Ajusta os espaçamentos entre os subplots
 	ax_info.text(0, 0.75, metrics_info1, va='center', fontsize=11)
@@ -235,22 +246,22 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 
 def atualizaTxt(nome, lista):
 	arquivo = open(nome, 'a')
-	arquivo.write('----------------------------------------\n\n')
 	for i in range(len(lista)):
-		arquivo.write(str(lista[i]) + '\n\n')
+		arquivo.write(str(lista[i]) + ' ')
+	arquivo.write('\n')
 	arquivo.close()
 
 # definindo a função main no python
 if __name__ == "__main__":
 	mc = 1
-	nRep = 50
-	indexData = 16
-	numVar = 0
+	nRep = 3
+	indexData = 20
+	numVar = 80
 
 	# result = experiment(14, mc, nRep, 2)
 	result, ref, centers = exec_mfcm(indexData, mc, nRep)
 	aux = selectDataset(indexData)
-	dataset, ref, nclusters = aux[0], aux[1], aux[2]
+	dataset, ref, nclusters, datasetName = aux[0], aux[1], aux[2], aux[3]
 
 	dataset_novo, plot = run_filter(dataset, result, ref, numVar, nclusters)
 
@@ -263,4 +274,4 @@ if __name__ == "__main__":
 	plot.append(raw_result)
 	plot.append(filtered_result)
 
-	plot_results(plot, ref, raw_name, (raw_time, filtered_time), 0, dataset_novo, dataset)
+	plot_results(plot, ref, raw_name, (raw_time, filtered_time), 0, dataset_novo, dataset, datasetName)

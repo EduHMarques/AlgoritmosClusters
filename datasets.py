@@ -729,7 +729,7 @@ def selectDataset(id):
 		return [dataset_unlabeled, dataset_ref, nClusters, "Hiva Agnostic Dataset"]
 	elif id == 20:
 		# Musk (Version 1) | UCI Machine Learning Repository | 165 features
-		dataset = pd.read_csv('musk1.data', header=None)
+		dataset = pd.read_csv('datasets/musk1.data', header=None)
 		dataset = dataset.drop(dataset.columns[[0, 1, -1]], axis=1)
 
 		dataset_ref = dataset.iloc[:,-1].tolist()

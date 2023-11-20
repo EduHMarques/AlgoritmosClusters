@@ -42,6 +42,8 @@ class KMeans:
             c_old = self.centroids
             self.centroids = self.get_centroids(self.clusters)
 
+            J = self.criterion(self.clusters, self.centroids)       # Colocar o criterio de parada para esse critério
+
             # Checa se o algoritmo convergeu 
             if self.converged(c_old, self.centroids):
                 break
@@ -51,7 +53,7 @@ class KMeans:
         end = timer()
         time = end - start
 
-        J = self.criterion(self.clusters, self.centroids)
+        # J = self.criterion(self.clusters, self.centroids)
 
         return (self.get_clusters_labels(self.clusters), time, J)
 
@@ -96,6 +98,7 @@ class KMeans:
             for obj_ind in cluster:
                 J += euclidean_distance(self.data[obj_ind], centroids[ind])
 
+        # print(f'criterio: {J}')
         return J
     
     def converged(self, c_old, c_new):

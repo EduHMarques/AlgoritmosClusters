@@ -37,7 +37,7 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 			best_centers = centers
 
 		exec_time += resp[4]
-		print(f'MC: {mc_i + 1}, Rep: {r + 1}')
+		# print(f'MC: {mc_i + 1}, Rep: {r + 1}')
 		
 	dict = {'Jmin': Jmin, 'bestL': bestL, 'bestM': bestM, 'exec_time': exec_time, 'best_centers': centersAll}
 	# Retorna os centers de todas as iterações para o KMeans (mudar para criar uma nova lista exclusiva para o KMeans)
@@ -68,13 +68,14 @@ def exec_mfcm(indexData, mc, nRep):
 			centersMC[c] = random.sample(range(1, nObj), nClusters)
 
 		clustering = execute(nRep, dataset, centersMC, i, exec_time)
+		exec_time += clustering['exec_time']
 
 		if clustering['Jmin'] < Jmin:
 			Jmin = clustering['Jmin']
 			result = clustering
 			centers = clustering['best_centers']
 	
-	return (result, ref, centers)
+	return (result, exec_time, centers)
 
 def exec_kmeans(K, nRep, dataset, centers):
 
@@ -86,43 +87,22 @@ def exec_kmeans(K, nRep, dataset, centers):
 		k = KMeans(K, nRep,)
 		result, time, J = k.predict(dataset, SEED, centersRep)
 
-		print('Executando KMeans')
-
 		if J < Jmin:
-			print(f'Jmin atualizado: {J}')
+			# print(f'Jmin atualizado: {J}')
 			Jmin = J
 			bestResult = result
 
-	return [bestResult, time, "KMeans"]
+	return [bestResult, time]
 	
 def run_filter(dataset, result, ref, numVar, numClusters):
-	
-	listaMetricas = []
-	
+		
 	## Obtendo resultados
 	resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
-	metricas = calculate_accuracy(result['bestL'], ref, result['bestM'], dataset)
-	listaMetricas.append(metricas)
-
-	print(f'\nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
-
-	## Gerando plot original (sem filtro aplicado)
-	resultado_filtro[0].sort(key=lambda k : k[0])
-
-	x_var = resultado_filtro[0][-1][1]
-	y_var = resultado_filtro[0][-2][1]
-
-	print(f'Eixos: {x_var}, {y_var}')
-	# x_axis = dataset[:, x_var] 
-	# y_axis = dataset[:, y_var]
-
-	plot = [x_var, y_var, result['bestL'], result['exec_time']]
 
 	## Aplicando filtro
-	# dataset_antigo = dataset
 	dataset = apply_filter(dataset, resultado_filtro, numVar)
 
-	return [dataset, plot]
+	return dataset
 
 def experiment(indexData, mc, nRep, numVar):
 
@@ -143,7 +123,7 @@ def experiment(indexData, mc, nRep, numVar):
 		dataName = synthetic[3]
 
 		nObj = len(dataset)
-		print(f'Num var: {len(dataset[0])}')
+		# print(f'Num var: {len(dataset[0])}')
 
 		centersMC = np.zeros((nRep, nClusters))
 
@@ -162,7 +142,7 @@ def experiment(indexData, mc, nRep, numVar):
 	metricas = calculate_accuracy(result['bestL'], ref, result['bestM'], dataset)
 	listaMetricas.append(metricas)
 
-	print(f'\nMC {i + 1}: \nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
+	# print(f'\nMC {i + 1}: \nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
 
 	## Gerando primeiro plot
 	resultado_filtro[0].sort(key=lambda k : k[0])
@@ -170,7 +150,7 @@ def experiment(indexData, mc, nRep, numVar):
 	x_var = resultado_filtro[0][-1][1]
 	y_var = resultado_filtro[0][-2][1]
 
-	print(f'Eixos: {x_var}, {y_var}')
+	# print(f'Eixos: {x_var}, {y_var}')
 	x_axis = dataset[:, x_var] 
 	y_axis = dataset[:, y_var]
 
@@ -255,8 +235,8 @@ def atualizaTxt(nome, lista):
 if __name__ == "__main__":
 	mc = 1
 	nRep = 3
-	indexData = 20
-	numVar = 80
+	indexData = 1
+	numVar = 2
 
 	# result = experiment(14, mc, nRep, 2)
 	result, ref, centers = exec_mfcm(indexData, mc, nRep)
@@ -267,9 +247,9 @@ if __name__ == "__main__":
 
 	## KMeans
 	K = nclusters
-	print('Executando KMEANS sem filtro')
+	# print('Executando KMEANS sem filtro')
 	raw_result, raw_time, raw_name = exec_kmeans(K, nRep, dataset, centers)
-	print('Executando KMEANS com filtro')
+	# print('Executando KMEANS com filtro')
 	filtered_result, filtered_time, filtered_name = exec_kmeans(K, nRep, dataset_novo, centers)
 	plot.append(raw_result)
 	plot.append(filtered_result)

@@ -1,12 +1,16 @@
+import os
 import numpy as np
 import pandas as pd
 from scipy.io import arff
+
+current_dir = os.getcwd()
 
 def selectDataset(id):
 	if id == 1:
 		# Iris
 		
-		dataset = pd.read_csv("datasets/iris.txt", sep=",", header=None)
+		path = os.path.join(current_dir, "AlgoritmosClusters/datasets/iris.txt")
+		dataset = pd.read_csv(path, sep=",", header=None)
 		dataset_ref = dataset.iloc[:,-1].tolist()
 
 		dataset_unlabeled = dataset.drop(dataset.columns[-1], axis=1)
@@ -20,7 +24,8 @@ def selectDataset(id):
 	elif id == 2:
 		# Glass
 
-		dataset = pd.read_csv("./datasets/glass.txt", sep=",", header=None)
+		path = os.path.join(current_dir, "AlgoritmosClusters/datasets/glass.txt")
+		dataset = pd.read_csv(path, sep=",", header=None)
 		dataset_ref = dataset.iloc[:,-1].tolist()
 		
 		columns = [dataset.columns[0], dataset.columns[-1]]
@@ -645,7 +650,8 @@ def selectDataset(id):
 	elif id == 15:
 		# Wine
 
-		dataset = pd.read_csv("./datasets/wine.txt", sep=",", header=None)
+		path = os.path.join(current_dir, "AlgoritmosClusters/datasets/wine.txt")
+		dataset = pd.read_csv(path, sep=",", header=None)
 		dataset_ref = dataset.iloc[:,0].tolist()
 		
 		columns = [dataset.columns[0]]
@@ -676,7 +682,7 @@ def selectDataset(id):
 		return [dataset_unlabeled, dataset_ref, nClusters, "Balance Dataset"]
 	elif id == 17:
 		# Scene | OPENML: ID 312 | 300 features
-		data = arff.loadarff('datasets/scene.arff')
+		data = arff.loadarff('AlgoritmosClusters/datasets/scene.arff')
 		
 		dataset = pd.DataFrame(data[0])
 		dataset[dataset.columns[-1]] = dataset.iloc[:,-1].astype(int)

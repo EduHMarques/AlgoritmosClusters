@@ -2,8 +2,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans as sklearnKMeans
-from classic_methods.dash2002 import Dash2002
-from classic_methods.mitra2002 import feature_selection
+from literature_methods.dash2002 import Dash2002
+from literature_methods.mitra2002 import feature_selection
+from literature_methods.maxvar import maxVar
+from literature_methods.laplacian_score import laplacian_score
 from experiment import *
 from datasets import selectDataset
 
@@ -17,9 +19,12 @@ def evaluate(indexData, pVar, mc, nRep, seed):
 
     numVar = int(pVar * n_features)
 
-    log += f'#################### {dataset_name} ####################\n\n'
+    log += f'*{"-"*30}* {dataset_name} *{"-"*30}*\n\n'
     log += f'Seed: {seed} | numVar: {numVar} ({pVar*100}%)\n'
     log += f'Dataset: {dataset_name} | n_samples: {n_samples} | n_features: {n_features} | n_clusters: {nclusters}\n'
+    log += 'Methods: MaxVar, Dash2002, Mitra2002'
+
+    log += '\nParameters:\n'
 
     ## MFCM
     
@@ -28,6 +33,14 @@ def evaluate(indexData, pVar, mc, nRep, seed):
 
     result, mfcm_time, centers = exec_mfcm(indexData, mc, nRep)
     dataset_novo = run_filter(dataset, result, ref, numVar, nclusters)
+
+    ## MaxVar
+
+    maxVar_features = maxVar(dataset, pVar)
+
+    ## Laplacian Score:
+
+    LS_features = laplacian_score(dataset, pVar)
 
     ## Dash2002
 
@@ -54,6 +67,8 @@ def evaluate(indexData, pVar, mc, nRep, seed):
     # log += (f"Variáveis selecionadas: {mitra_features}")
 
     ## Feature selection
+    X_maxvar = dataset[:, maxVar_features]
+    X_LS = dataset[:, LS_features]
     X_dash = dataset[:, dash_features]
     X_mitra = dataset[:, mitra_features]
 
@@ -61,84 +76,75 @@ def evaluate(indexData, pVar, mc, nRep, seed):
     K = nclusters
 
     # KMeansresult, KMeanstime = exec_kmeans(K, nRep, dataset_novo, centers) # KMeans com filtro MFCM
+    og_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
+    og_Kmeans.fit(dataset)
+    y_pred_og = og_Kmeans.labels_
+    
     KMeansresult = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
     KMeansresult.fit(dataset_novo)
     KMeansresult = KMeansresult.labels_
 
-    og_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
-    og_Kmeans.fit(dataset)
-    y_pred_og = og_Kmeans.labels_
+    maxvar_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
+    maxvar_Kmeans.fit(X_maxvar)
+    y_pred0 = maxvar_Kmeans.labels_
+
+    LS_KMeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
+    LS_KMeans.fit(X_LS)
+    y_pred1 = LS_KMeans.labels_
 
     mitra_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
     mitra_Kmeans.fit(X_mitra)
-    y_pred1 = mitra_Kmeans.labels_
+    y_pred2 = mitra_Kmeans.labels_
 
     dash_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
     dash_Kmeans.fit(X_dash)
-    y_pred2 = dash_Kmeans.labels_
+    y_pred3 = dash_Kmeans.labels_
 
     ## Metrics
 
     log += '\nResults:\n\n'
 
     log += 'KMeans sem filtro:\n'
-    results = calculate_accuracy(y_pred_og, ref, None, dataset)
+    results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred_og, ref, None, dataset)))
     log += (f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n')
 
     log += '\nMFCM:\n'
-    results = calculate_accuracy(KMeansresult, ref, None, dataset_novo)
-    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {mfcm_time}s\n'
+    results = list(map(lambda x: round(x, 8), calculate_accuracy(KMeansresult, ref, None, dataset_novo)))
+    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(mfcm_time, 4)}s\n'
 
-    log += '\nDash2002:\n'
-    results = calculate_accuracy(y_pred2, ref, None, X_dash)
+    log += '\nMaxVar:\n'
+    results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred0, ref, None, X_maxvar)))
+    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n'
+
+    log += '\nLS:\n'
+    results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred1, ref, None, X_LS)))
     log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n'
 
     log += '\nMitra2002:\n'
-    results = calculate_accuracy(y_pred1, ref, None, X_mitra)
+    results = list(map(lambda x: round(x, 8),calculate_accuracy(y_pred2, ref, None, X_mitra)))
+    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n'
+
+    log += '\nDash2002:\n'
+    results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred3, ref, None, X_dash)))
     log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n\n'
 
     return log
 
-    ## Plotting
-    # plt.figure(figsize=(18, 5))
-
-    # plt.subplot(1, 5, 1)
-    # plt.scatter(dataset[:,0], dataset[:,1], c=ref)
-    # plt.title('Original')
-
-    # plt.subplot(1, 5, 2)
-    # plt.scatter(dataset[:,0], dataset[:,1], c=y_pred_og)
-    # plt.title('KMeans sem filtro')
-
-    # plt.subplot(1, 5, 3)
-    # plt.scatter(dataset_novo[:,0], dataset_novo[:,1], c=filtered_result)
-    # plt.title('Filtro por Variância - MFCM')
-
-    # plt.subplot(1, 5, 4)
-    # plt.scatter(X_mitra[:,0], X_mitra[:,1], c=y_pred1)
-    # plt.title('Mitra2002')
-
-    # plt.subplot(1, 5, 5)
-    # plt.scatter(X_dash[:,0], X_dash[:,1], c=y_pred2)
-    # plt.title('Dash2002')
-
-    # plt.tight_layout()
-    # plt.show()
 
 if __name__ == '__main__':
-    log_file = open('AlgoritmosClusters/logs/evaluation_classic_methods.txt', 'a', newline='\n')
+    log_file = open('logs/evaluation_classic_methods.txt', 'a', newline='\n')
 
     SEED = 42
     nRep = 100
     
-    datasets = [17]
-    pVars = [0.25, 0.50]
+    datasets = [1]
+    pVars = [0.50]
 
     for d in datasets:
         for p in pVars:
             log = evaluate(d, p, 1, nRep, SEED)
             print(log)
-            log_file.write(log)
+            #log_file.write(log)
 
-    print("---------> Done <---------")
+    print(f"{'-'*30}> Done <{'-'*30}")
     log_file.close()

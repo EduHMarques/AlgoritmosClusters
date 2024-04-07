@@ -1,6 +1,8 @@
 import numpy as np
+from numba import jit, cuda
 from timeit import default_timer as timer
 
+@jit(target_backend='cuda', forceobj=True)
 def MFCM(data, centers, parM):
 
   start = timer()
@@ -64,7 +66,7 @@ def initializePrototypes(data,centers):
   
   return P
 
-
+@jit(target_backend='cuda')
 def updatePrototypes(data, memberships, parM):
   
   nObj = data.shape[0]
@@ -95,6 +97,7 @@ def updatePrototypes(data, memberships, parM):
   
   return P
 
+#@jit(target_backend='cuda')
 def updateDistances(data, prototypes):
   
   nObj = data.shape[0]
@@ -131,7 +134,7 @@ def updateDistances(data, prototypes):
 
   return D
 
-
+@jit(target_backend='cuda')
 def updateMembership(distances, parM):
   
   nObj = distances.shape[1]
@@ -177,7 +180,7 @@ def updateMembership(distances, parM):
   
   return U
 
-
+@jit(target_backend='cuda')
 def updateCriterion(memberships,distances,parM):
   
   J = 0

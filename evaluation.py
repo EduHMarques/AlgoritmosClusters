@@ -8,6 +8,7 @@ from literature_methods.maxvar import maxVar
 from literature_methods.laplacian_score import laplacian_score
 from experiment import *
 from datasets import selectDataset
+from timeit import default_timer as timer
 
 def evaluate(indexData, pVar, mc, nRep, seed):
     ## Loading Data
@@ -36,11 +37,17 @@ def evaluate(indexData, pVar, mc, nRep, seed):
 
     ## MaxVar
 
+    start = timer()
     maxVar_features = maxVar(dataset, pVar)
+    end = timer()
+    maxvar_time = end - start
 
     ## Laplacian Score:
 
+    start = timer()
     LS_features = laplacian_score(dataset, pVar)
+    end = timer()
+    ls_time = end - start
 
     ## Dash2002
 
@@ -50,10 +57,15 @@ def evaluate(indexData, pVar, mc, nRep, seed):
     log += '\nDash2002\n'
     log += f'threshold: {threshold}\n'
 
+    start = timer()
+
     model = Dash2002(dataset, threshold)
 
     entropy = model.execute(dataset)
     dash_features = model.forward_selection()
+
+    end = timer()
+    dash_time = end - start
 
     log += f"Entropy: {entropy}\n"
     # log += (f"Variáveis selecionadas: {dash_features}")
@@ -63,11 +75,14 @@ def evaluate(indexData, pVar, mc, nRep, seed):
     log += ('\nMitra2002\n')
     log += f'K: {int(threshold)}\n'
 
+    start = timer()
     mitra_features = feature_selection(dataset, k=int(threshold))
     # log += (f"Variáveis selecionadas: {mitra_features}")
+    end = timer()
+    mitra_time = end - start
 
     ## Feature selection
-    X_maxvar = dataset[:, maxVar_features]
+    X_maxvar = dataset[:, np.array(maxVar_features, dtype='int32')]
     X_LS = dataset[:, LS_features]
     X_dash = dataset[:, dash_features]
     X_mitra = dataset[:, mitra_features]
@@ -114,19 +129,19 @@ def evaluate(indexData, pVar, mc, nRep, seed):
 
     log += '\nMaxVar:\n'
     results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred0, ref, None, X_maxvar)))
-    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n'
+    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(maxvar_time, 4)}s\n'
 
     log += '\nLS:\n'
     results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred1, ref, None, X_LS)))
-    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n'
+    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(ls_time, 4)}s\n'
 
     log += '\nMitra2002:\n'
     results = list(map(lambda x: round(x, 8),calculate_accuracy(y_pred2, ref, None, X_mitra)))
-    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n'
+    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(mitra_time, 4)}s\n'
 
     log += '\nDash2002:\n'
     results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred3, ref, None, X_dash)))
-    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n\n'
+    log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(dash_time, 4)}s\n\n'
 
     return log
 
@@ -137,7 +152,7 @@ if __name__ == '__main__':
     SEED = 42
     nRep = 100
     
-    datasets = [1]
+    datasets = [15]
     pVars = [0.50]
 
     for d in datasets:

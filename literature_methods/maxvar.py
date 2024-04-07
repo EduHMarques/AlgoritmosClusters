@@ -1,5 +1,7 @@
 import numpy as np
+from numba import jit, cuda
 
+@jit(target_backend='cuda')
 def maxVar(dataset, feature_percentage=0.25):
     n_samples, n_features = dataset.shape
     n_selected_features = int(feature_percentage * n_features)

@@ -18,7 +18,7 @@ def sum_filter(data, U, nClusters):
             aTotal += a
 
         aTotal = round(aTotal * 100, 2)
-        V.append(aTotal)
+        V.append((aTotal, i))
     
     return (V, 'Filtro por Somatório')
 

@@ -94,11 +94,13 @@ def exec_kmeans(K, nRep, dataset, centers):
 
 	return [bestResult, time]
 	
-def run_filter(dataset, result, ref, numVar, numClusters):
+def run_filter(method, dataset, result, ref, numVar, numClusters):
 		
 	## Obtendo resultados
-	resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
-
+	if method == 1:
+		resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
+	else:
+		resultado_filtro = sum_filter(dataset, result['bestM'], numClusters)
 	## Aplicando filtro
 	dataset = apply_filter(dataset, resultado_filtro, numVar)
 

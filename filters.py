@@ -5,7 +5,7 @@ def sum_filter(data, U, nClusters):
     nVar = data.shape[1]
 
     for i in range(0, nVar):
-        aTotal = 0 # Relevância total
+        aTotal = [] # Relevância total
         nObj = data.shape[0]
 
         for j in range(0, nClusters):  
@@ -15,8 +15,9 @@ def sum_filter(data, U, nClusters):
                 a += u
         
             a /= nObj # Relevância em relação ao cluster j
-            aTotal += a
+            aTotal.append(a)
 
+        aTotal = np.mean(aTotal)
         aTotal = round(aTotal * 100, 2)
         V.append((aTotal, i))
     
@@ -50,9 +51,12 @@ def variance_filter(data, U, nClusters):
     return (V, 'Filtro por Variância')
 
 
-def apply_filter(dataset, result, n):
+def apply_filter(dataset, result, n, method=1):
 
-    result[0].sort(key=lambda k : k[0])
+    if method == 1: # Variância
+        result[0].sort(key=lambda k : k[0])
+    else: # Somatório
+        result[0].sort(key=lambda k : k[0], reverse=True)
 
     # print(f'\n{result[1]}: ')
     # for item in range(len(result[0])):

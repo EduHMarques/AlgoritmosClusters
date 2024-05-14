@@ -22,6 +22,7 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 	best_centers = 0
 
 	for r in range(nRep):
+		print(f'Rep: {r+1}/{nRep}')
 		centers = list(map(int, centersAll[r,].tolist()))
 
 		resp = MFCM(dataset, centers, 2)
@@ -102,7 +103,7 @@ def run_filter(method, dataset, result, ref, numVar, numClusters):
 	else:
 		resultado_filtro = sum_filter(dataset, result['bestM'], numClusters)
 	## Aplicando filtro
-	dataset = apply_filter(dataset, resultado_filtro, numVar)
+	dataset = apply_filter(dataset, resultado_filtro, numVar, method)
 
 	return dataset
 

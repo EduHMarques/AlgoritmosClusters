@@ -2,8 +2,11 @@ import os
 import numpy as np
 import pandas as pd
 from scipy.io import arff
+from sklearn.preprocessing import StandardScaler
 
 current_dir = os.getcwd()
+
+scaler = StandardScaler()
 
 def selectDataset(id):
 	if id == 1:
@@ -747,6 +750,81 @@ def selectDataset(id):
 		# print("Dataset selecionado: Musk (Version 1)\n")
 		
 		return [dataset_unlabeled, dataset_ref, nClusters, "Musk (Version 1) Dataset"]
+	elif id == 21:
+		n = 210 
+		n_classes = 3 
+
+		mu = np.array([
+			[0, 0],
+			[15, 0],
+			[10, 25] 
+		])
+		sigma = 10
+
+		X_class1 = np.random.multivariate_normal(mu[0], sigma * np.eye(2), size=int(n/3))
+		X_class2 = np.random.multivariate_normal(mu[1], sigma * np.eye(2), size=int(n/3))
+		X_class3 = np.random.multivariate_normal(mu[2], sigma * np.eye(2), size=int(n/3))
+
+		X = np.vstack((X_class1, X_class2, X_class3))
+
+		y_class1 = np.ones(int(n/3)) * 1
+		y_class2 = np.ones(int(n/3)) * 2
+		y_class3 = np.ones(int(n/3)) * 3
+		y = np.hstack((y_class1, y_class2, y_class3))
+
+		synthetic = X
+		data_ref = y
+
+		synthetic = scaler.fit_transform(synthetic)
+
+		return [synthetic, data_ref, n_classes, "Spherical Gaussian Distribution - 3 Classes"]
+	elif id == 22:
+		n = 210				# Dataset Sintético Relação linear
+		nClasses = 3
+
+		mu = np.array([
+			[0, 0],
+			[30, 0],
+			[10, 25] 
+			])
+		sigma = 10
+
+		X_linear = np.random.multivariate_normal(mu[0], sigma * np.eye(2), size=int(n/nClasses))
+		y_linear = np.repeat(1, int(n/nClasses))
+
+		for i in range(1, nClasses):
+			X_linear = np.vstack((X_linear, np.random.multivariate_normal(mu[i], sigma * np.eye(2), size=int(n/nClasses))))
+			y_linear = np.hstack((y_linear, np.repeat(i+1, int(n/nClasses))))
+
+		synthetic = X_linear
+		data_ref_ = y_linear
+
+		synthetic = scaler.fit_transform(synthetic)
+
+		return [synthetic, data_ref_, nClasses, "Relação linear"]
+	elif id == 23:
+		n = 200 
+		n_classes = 3
+
+		mu1 = np.array([0, 0])
+		mu2 = np.array([30, 0])
+		mu3 = np.array([10, 25])
+
+		coef = 0.5
+		base = 2
+
+		X_class1 = mu1 + coef * np.random.rand(n // n_classes, 2)
+		X_class2 = mu2 + coef * (base**np.random.rand(n // n_classes, 1)) * np.random.rand(n // n_classes, 2)
+		X_class3 = mu3 + coef * (base**np.random.rand(n // n_classes, 1)) * np.random.rand(n // n_classes, 2)
+
+		synthetic = np.vstack((X_class1, X_class2, X_class3))
+		synthetic = scaler.fit_transform(synthetic)
+
+		print(synthetic)
+
+		data_ref = np.concatenate((np.repeat(1, n // n_classes), np.repeat(2, n // n_classes), np.repeat(3, n // n_classes)))
+
+		return [synthetic, data_ref, n_classes, "Relação Exponencial"]
 	
 def normalize(dataset):
 	nRows = dataset.shape[0]

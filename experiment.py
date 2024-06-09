@@ -4,6 +4,7 @@ from metrics import FR_Index
 from sklearn.metrics import f1_score, davies_bouldin_score, silhouette_score, normalized_mutual_info_score
 from sklearn.metrics.cluster import adjusted_rand_score
 import random
+import time
 
 from datasets import selectDataset
 from FCM import FCM
@@ -55,18 +56,20 @@ def exec_mfcm(indexData, mc, nRep):
 
 	## Monte Carlo
 	for i in range(mc):
+		SEED = int(time.time())
+		np.random.seed(SEED)
+		random.seed(SEED)
+
 		synthetic = selectDataset(indexData)
 		dataset = synthetic[0]
 		ref = synthetic[1]
 		nClusters = synthetic[2]
 		dataName = synthetic[3]
 
-		nObj = len(dataset)
-
 		centersMC = np.zeros((nRep, nClusters))
 
 		for c in range(nRep):
-			centersMC[c] = random.sample(range(1, nObj), nClusters)
+			centersMC[c] = random.sample(range(1, len(dataset)), nClusters)
 
 		clustering = execute(nRep, dataset, centersMC, i, exec_time)
 		exec_time += clustering['exec_time']

@@ -43,12 +43,12 @@ def evaluate(indexData, pVar, mc, nRep, seed):
         ## Métodos propostos
 
         # start = timer()
-        # dataset_varfilter = run_filter(1, dataset, result, ref, numVar, nclusters)
+        # dataset_varfilter = run_filter('mean', dataset, result, ref, numVar, nclusters)
         # end = timer()
         # filvar_time = round(end - start, 4)
 
         # start = timer()
-        # dataset_sumfilter = run_filter(2, dataset, result, ref, numVar, nclusters)
+        # dataset_sumfilter = run_filter('var', dataset, result, ref, numVar, nclusters)
         # end = timer()
         # filsum_time = round(end - start, 4)
 

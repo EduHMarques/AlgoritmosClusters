@@ -12,18 +12,18 @@ from MFCM import MFCM
 from KMeans import KMeans
 from filters import *
 
-SEED = 45
+SEED = 42
 np.random.seed(SEED)
 random.seed(SEED)
 
-def execute(nRep, dataset, centersAll, mc_i, exec_time):
+def execute(nRep, dataset, centersAll, exec_time):
 	Jmin = 2147483647	# int_max do R
 	bestL = 0			# melhor valor de L_resp
 	bestM = 0			# melhor valor de M_resp
 	best_centers = 0
 
 	for r in range(nRep):
-		print(f'Rep: {r+1}/{nRep}')
+		# print(f'Rep: {r+1}/{nRep}')
 		centers = list(map(int, centersAll[r,].tolist()))
 
 		resp = MFCM(dataset, centers, 2)
@@ -39,47 +39,11 @@ def execute(nRep, dataset, centersAll, mc_i, exec_time):
 			best_centers = centers
 
 		exec_time += resp[4]
-		# print(f'MC: {mc_i + 1}, Rep: {r + 1}')
 		
 	dict = {'Jmin': Jmin, 'bestL': bestL, 'bestM': bestM, 'exec_time': exec_time, 'best_centers': centersAll}
 	# Retorna os centers de todas as iterações para o KMeans (mudar para criar uma nova lista exclusiva para o KMeans)
 	
 	return dict
-
-def exec_mfcm(indexData, mc, nRep):
-	
-	## Inicializando variáveis
-	exec_time = 0
-	result = {}
-	Jmin = 2147483647
-	centers = 0
-
-	## Monte Carlo
-	for i in range(mc):
-		SEED = int(time.time())
-		np.random.seed(SEED)
-		random.seed(SEED)
-
-		synthetic = selectDataset(indexData)
-		dataset = synthetic[0]
-		ref = synthetic[1]
-		nClusters = synthetic[2]
-		dataName = synthetic[3]
-
-		centersMC = np.zeros((nRep, nClusters))
-
-		for c in range(nRep):
-			centersMC[c] = random.sample(range(1, len(dataset)), nClusters)
-
-		clustering = execute(nRep, dataset, centersMC, i, exec_time)
-		exec_time += clustering['exec_time']
-
-		if clustering['Jmin'] < Jmin:
-			Jmin = clustering['Jmin']
-			result = clustering
-			centers = clustering['best_centers']
-	
-	return (result, exec_time, centers)
 
 def exec_kmeans(K, nRep, dataset, centers):
 
@@ -92,80 +56,20 @@ def exec_kmeans(K, nRep, dataset, centers):
 		result, time, J = k.predict(dataset, SEED, centersRep)
 
 		if J < Jmin:
-			# print(f'Jmin atualizado: {J}')
 			Jmin = J
 			bestResult = result
 
 	return [bestResult, time]
-	
-def run_filter(method, dataset, result, ref, numVar, numClusters):
+
+def run_filter(method, dataset, result, numVar, numClusters):
 		
-	## Obtendo resultados
-	if method == 1:
+	if method == 'mean':
 		resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
-	else:
+	elif method == 'var':
 		resultado_filtro = sum_filter(dataset, result['bestM'], numClusters)
-	## Aplicando filtro
 	dataset = apply_filter(dataset, resultado_filtro, numVar, method)
 
 	return dataset
-
-def experiment(indexData, mc, nRep, numVar):
-
-	## Inicializando variáveis
-	exec_time = 0
-	result = {}
-
-	listaMetricas = []
-
-	## Monte Carlo
-	Jmin = 2147483647
-	centersAll = []
-	for i in range(mc):
-		synthetic = selectDataset(indexData)
-		dataset = synthetic[0]
-		ref = synthetic[1]
-		nClusters = synthetic[2]
-		dataName = synthetic[3]
-
-		nObj = len(dataset)
-		# print(f'Num var: {len(dataset[0])}')
-
-		centersMC = np.zeros((nRep, nClusters))
-
-		for c in range(nRep):
-			centersMC[c] = random.sample(range(1, nObj), nClusters)
-
-		clustering = execute(nRep, dataset, centersMC, i, exec_time)
-
-		if clustering['Jmin'] < Jmin:
-			Jmin = clustering['Jmin']
-			result = clustering
-			centersAll = centersMC
-
-	## Obtendo resultados
-	resultado_filtro = variance_filter(dataset, result['bestM'], nClusters)
-	metricas = calculate_accuracy(result['bestL'], ref, result['bestM'], dataset)
-	listaMetricas.append(metricas)
-
-	# print(f'\nMC {i + 1}: \nARI: {metricas[0]}\nNMI: {metricas[1]}%\nSilhouette: {metricas[2]}%\nDB: {metricas[3]}')
-
-	## Gerando primeiro plot
-	resultado_filtro[0].sort(key=lambda k : k[0])
-
-	x_var = resultado_filtro[0][-1][1]
-	y_var = resultado_filtro[0][-2][1]
-
-	# print(f'Eixos: {x_var}, {y_var}')
-	x_axis = dataset[:, x_var] 
-	y_axis = dataset[:, y_var]
-
-	plot1 = [x_axis, y_axis, result['bestL'], result['exec_time']]
-
-	## Aplicando filtro
-	dataset_antigo = dataset
-	dataset = apply_filter(dataset, resultado_filtro, numVar)
-	result = exec_kmeans(4, nRep, ref, dataset, dataset_antigo)
 
 def calculate_accuracy(L, ref, U, dataset):
 	ari = adjusted_rand_score(L, ref)
@@ -174,6 +78,64 @@ def calculate_accuracy(L, ref, U, dataset):
 	db = davies_bouldin_score(dataset, L)
 
 	return [ari, nmi, silhouette, db]
+
+def experiment(indexData, mc, nRep, nVar):
+	
+	exec_time = 0
+	centers = 0
+
+	ari_scores = []
+	nmi_scores = []
+	silhouette_scores = []
+	db_scores = []
+
+	for i in range(mc):
+		np.random.seed(i + int(time.time()))
+		random.seed(i + int(time.time()))
+
+		synthetic = selectDataset(indexData)
+		dataset = synthetic[0]
+		ref = synthetic[1]
+		nClusters = synthetic[2]
+		dataName = synthetic[3]
+
+		i == 0 and print(f'Dataset escolhido: {dataName}')
+
+		centersMC = np.zeros((nRep, nClusters))
+
+		for c in range(nRep):
+			centersMC[c] = random.sample(range(1, len(dataset)), nClusters)
+
+		mfcm_result = execute(nRep, dataset, centersMC, exec_time)
+		centers = mfcm_result['best_centers']
+		exec_time += mfcm_result['exec_time']
+		
+		filtered_data = run_filter('mean', dataset, mfcm_result, nVar, nClusters)
+
+		filtered_result, filtered_time = exec_kmeans(nClusters, nRep, filtered_data, centers)
+
+		metrics = calculate_accuracy(filtered_result, ref, None, filtered_data)
+
+		ari_scores.append(metrics[0])
+		nmi_scores.append(metrics[1])
+		silhouette_scores.append(metrics[2])
+		db_scores.append(metrics[3])
+
+		print(f'MC: {i}/{mc}')
+
+	mean_ari = np.mean(ari_scores)
+	mean_nmi = np.mean(nmi_scores)
+	mean_silhouette = np.mean(silhouette_scores)
+	mean_db = np.mean(db_scores)
+
+	print(f'Média ARI: {mean_ari}')
+	print(f'Média NMI: {mean_nmi}')
+	print(f'Média Silhouette: {mean_silhouette}')
+	print(f'Média Davies-Bouldin: {mean_db}')
+
+	# PLOT A SEGUIR:
+	
+	return (mfcm_result, filtered_time, centers)
 
 def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_antigo, datasetName):
 	fig, axes = plt.subplots(2, 2, figsize=(10, 8))
@@ -237,27 +199,12 @@ def atualizaTxt(nome, lista):
 	arquivo.write('\n')
 	arquivo.close()
 
-# definindo a função main no python
 if __name__ == "__main__":
-	mc = 1
-	nRep = 3
-	indexData = 1
-	numVar = 2
+	mc = 100
+	nRep = 50
+	indexData = 22
+	numVar = 1
 
-	# result = experiment(14, mc, nRep, 2)
-	result, ref, centers = exec_mfcm(indexData, mc, nRep)
-	aux = selectDataset(indexData)
-	dataset, ref, nclusters, datasetName = aux[0], aux[1], aux[2], aux[3]
+	result, ref, centers = experiment(indexData, mc, nRep, numVar)
 
-	dataset_novo, plot = run_filter(dataset, result, ref, numVar, nclusters)
-
-	## KMeans
-	K = nclusters
-	# print('Executando KMEANS sem filtro')
-	raw_result, raw_time, raw_name = exec_kmeans(K, nRep, dataset, centers)
-	# print('Executando KMEANS com filtro')
-	filtered_result, filtered_time, filtered_name = exec_kmeans(K, nRep, dataset_novo, centers)
-	plot.append(raw_result)
-	plot.append(filtered_result)
-
-	plot_results(plot, ref, raw_name, (raw_time, filtered_time), 0, dataset_novo, dataset, datasetName)
+	# plot_results(plot, ref, raw_name, (raw_time, filtered_time), 0, filtered_data, dataset, datasetName)

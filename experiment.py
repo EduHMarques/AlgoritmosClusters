@@ -98,6 +98,7 @@ def experiment(indexData, mc, nRep, nVar):
 		ref = synthetic[1]
 		nClusters = synthetic[2]
 		dataName = synthetic[3]
+		parameters = synthetic[4]
 
 		i == 0 and print(f'Dataset escolhido: {dataName}')
 
@@ -132,6 +133,15 @@ def experiment(indexData, mc, nRep, nVar):
 	print(f'Média NMI: {mean_nmi}')
 	print(f'Média Silhouette: {mean_silhouette}')
 	print(f'Média Davies-Bouldin: {mean_db}')
+
+	data_info = (f'\nDataset: {dataName} | N_samples: {len(dataset)} | N_variaveis: {len(dataset[0])} | N_clusters: {nClusters}\nMC: {mc} | MFCM_Rep: {nRep} | Variaveis cortadas: {nVar}\n')
+	metrics_info = (f'Resultados do filtro:\nARI: {mean_ari}\nNMI: {mean_nmi}\nSilhoutte: {mean_silhouette}\nDB: {mean_db}\n')
+	parameters_info = (f'Parametros de distribuicao do dataset:\n{parameters}\n')
+
+	atualizaTxt(f'logs/{dataName}.txt', data_info)
+	atualizaTxt(f'logs/{dataName}.txt', metrics_info)
+	atualizaTxt(f'logs/{dataName}.txt', parameters_info)
+	atualizaTxt(f'logs/{dataName}.txt', '#################################################################')
 
 	# PLOT A SEGUIR:
 	
@@ -195,12 +205,12 @@ def plot_results(plot_info, ref, dataset_name, exec_time, U, dataset, dataset_an
 def atualizaTxt(nome, lista):
 	arquivo = open(nome, 'a')
 	for i in range(len(lista)):
-		arquivo.write(str(lista[i]) + ' ')
+		arquivo.write(str(lista[i]))
 	arquivo.write('\n')
 	arquivo.close()
 
 if __name__ == "__main__":
-	mc = 100
+	mc = 10
 	nRep = 50
 	indexData = 22
 	numVar = 1

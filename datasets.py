@@ -782,7 +782,12 @@ def selectDataset(id):
 
 		synthetic = scaler.fit_transform(synthetic)
 
-		return [synthetic, data_ref, nClusters, "Spherical Gaussian Distribution - 3 Classes"]
+		mu_str = repr(mu).replace('array', 'np.array')
+		sigma_str = repr(sigma).replace('array', 'np.array')
+
+		parameters_str = f"mu = {mu_str}\n\nsigma = {sigma_str}"
+
+		return [synthetic, data_ref, nClusters, "Spherical Gaussian Distribution - 3 Classes", parameters_str]
 	elif id == 22:
 		n = 210				# Dataset Sintético Relação linear
 		nClusters = 3
@@ -810,7 +815,12 @@ def selectDataset(id):
 
 		synthetic = scaler.fit_transform(synthetic)
 
-		return [synthetic, data_ref_, nClusters, "Relação linear"]
+		mu_str = repr(mu).replace('array', 'np.array')
+		sigma_str = repr(sigma).replace('array', 'np.array')
+
+		parameters_str = f"mu = {mu_str}\n\nsigma = {sigma_str}"
+
+		return [synthetic, data_ref_, nClusters, "Relacao linear", parameters_str]
 	elif id == 23:
 		n = 200 
 		n_classes = 3
@@ -833,7 +843,7 @@ def selectDataset(id):
 
 		data_ref = np.concatenate((np.repeat(1, n // n_classes), np.repeat(2, n // n_classes), np.repeat(3, n // n_classes)))
 
-		return [synthetic, data_ref, n_classes, "Relação Exponencial"]
+		return [synthetic, data_ref, n_classes, "Relacao Exponencial"]
 	
 def normalize(dataset):
 	nRows = dataset.shape[0]

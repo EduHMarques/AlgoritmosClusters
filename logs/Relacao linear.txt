@@ -1,0 +1,41 @@
+Dataset: Relacao linear | N_samples: 210 | N_variaveis: 2 | N_clusters: 3
+MC: 10 | MFCM_Rep: 5 | Variaveis cortadas: 1
+
+Resultados do filtro:
+ARI: 0.6980622418822532
+NMI: 0.7591105142080898
+Silhoutte: 0.729150349122776
+DB: 0.3820190900146062
+
+Parametros de distribuicao do dataset:
+mu = np.array([[ 0,  0],
+       [30,  0],
+       [10, 25]])
+
+sigma = [np.array([[ 1,  0],
+       [ 0, 10]]), np.array([[5, 0],
+       [0, 1]]), np.array([[3, 0],
+       [0, 5]])]
+
+#################################################################
+
+Dataset: Relacao linear | N_samples: 210 | N_variaveis: 2 | N_clusters: 3
+MC: 10 | MFCM_Rep: 50 | Variaveis cortadas: 1
+
+Resultados do filtro:
+ARI: 0.5231068346111895
+NMI: 0.628135587369014
+Silhoutte: 0.672685720232195
+DB: 0.45946343651410837
+
+Parametros de distribuicao do dataset:
+mu = np.array([[ 0,  0],
+       [30,  0],
+       [10, 25]])
+
+sigma = [np.array([[ 1,  0],
+       [ 0, 10]]), np.array([[5, 0],
+       [0, 1]]), np.array([[3, 0],
+       [0, 5]])]
+
+#################################################################

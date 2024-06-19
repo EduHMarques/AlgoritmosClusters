@@ -9,8 +9,9 @@ plt.style.use(['science'])  # Removendo 'ieee' style
 x = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 y_labels = ['Adjusted Rand Index (ARI)', 'Normalized Mutual Information (NMI)', 'Silhouette Score', 'Davies-Bouldin Score (DB)']
 # datasets = ['Musk', 'Scene', 'Madelon', 'Hiva']
-datasets = ['Musk', 'Scene', 'Madelon']
-dataset_names = ['Musk (Version 1)', 'Scene', 'Madelon', 'Hiva Agnostic']
+# dataset_names = ['Musk (Version 1)', 'Scene', 'Madelon', 'Hiva Agnostic']
+dataset_names = ['Madelon', 'Hiva Agnostic']
+datasets = ['Madelon', 'Hiva']
 
 for j, dataset in enumerate(datasets):
     path = 'csv/' + dataset
@@ -19,7 +20,9 @@ for j, dataset in enumerate(datasets):
     maxvar = pd.read_csv(path + '/maxvar.csv')
     ls = pd.read_csv(path + '/LS.csv')
     mitra = pd.read_csv(path + '/mitra.csv')
-    dash = pd.read_csv(path + '/dash.csv')
+    # dash = pd.read_csv(path + '/dash.csv')
+    mcfs = pd.read_csv(path + '/mcfs.csv')
+    # mim = pd.read_csv(path + '/mim.csv')
 
     fig, axs = plt.subplots(1, 4, figsize=(20, 10))
 
@@ -29,7 +32,9 @@ for j, dataset in enumerate(datasets):
         axs[i].plot(x, maxvar.iloc[:, i], label='MaxVar')
         axs[i].plot(x, ls.iloc[:, i], label='LS')
         axs[i].plot(x, mitra.iloc[:, i], label='Mitra')
-        axs[i].plot(x, dash.iloc[:, i], label='Dash')
+        # axs[i].plot(x, dash.iloc[:, i], label='Dash')
+        axs[i].plot(x, mcfs.iloc[:, i], label='MCFS')
+        # axs[i].plot(x, mim.iloc[:, i], label='MIM')
 
         axs[i].set_xlabel('Percentage (\%) of features', weight='bold')
         axs[i].set_ylabel(y_labels[i], weight='bold')

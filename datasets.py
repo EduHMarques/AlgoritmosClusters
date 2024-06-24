@@ -772,9 +772,9 @@ def selectDataset(id):
 
 		X = np.vstack((X_class1, X_class2, X_class3))
 
-		y_class1 = np.ones(int(n/3)) * 1
-		y_class2 = np.ones(int(n/3)) * 2
-		y_class3 = np.ones(int(n/3)) * 3
+		y_class1 = np.ones(int(n/3)) * 0
+		y_class2 = np.ones(int(n/3)) * 1
+		y_class3 = np.ones(int(n/3)) * 2
 		y = np.hstack((y_class1, y_class2, y_class3))
 
 		synthetic = X
@@ -794,21 +794,21 @@ def selectDataset(id):
 
 		mu = np.array([
 			[0, 0],
-			[30, 0],
-			[10, 25] 
-			])
+			[0, 20],
+			[0, 40]
+		])
 		sigma = np.array([
-			[1, 10],
-			[5, 1],
-			[3, 5] 
-			])
+			[5, 5],
+			[5, 5],
+			[5, 5]
+		])
 		sigma = [np.diag(sigma[i]) for i in range(3)]
 
 		X_linear = np.random.multivariate_normal(mu[0], sigma[0], size=int(n/nClusters))
-		y_linear = np.repeat(1, int(n/nClusters))
+		y_linear = np.repeat(0, int(n/nClusters))
 		for i in range(1, nClusters):
 			X_linear = np.vstack((X_linear, np.random.multivariate_normal(mu[i], sigma[i], size=int(n/nClusters))))
-			y_linear = np.hstack((y_linear, np.repeat(i+1, int(n/nClusters))))
+			y_linear = np.hstack((y_linear, np.repeat(i, int(n/nClusters))))
 
 		synthetic = X_linear
 		data_ref_ = y_linear

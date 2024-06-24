@@ -79,7 +79,7 @@ def calculate_accuracy(L, ref, U, dataset):
 
 	return [ari, nmi, silhouette, db]
 
-def experiment(indexData, mc, nRep, nVar):
+def experiment(indexData, mc, nRep, nVar, method):
 	
 	exec_time = 0
 	centers = 0
@@ -111,7 +111,7 @@ def experiment(indexData, mc, nRep, nVar):
 		centers = mfcm_result['best_centers']
 		exec_time += mfcm_result['exec_time']
 		
-		filtered_data = run_filter('mean', dataset, mfcm_result, nVar, nClusters)
+		filtered_data = run_filter(method, dataset, mfcm_result, nVar, nClusters)
 
 		filtered_result, filtered_time = exec_kmeans(nClusters, nRep, filtered_data, centers)
 
@@ -122,8 +122,10 @@ def experiment(indexData, mc, nRep, nVar):
 		silhouette_scores.append(metrics[2])
 		db_scores.append(metrics[3])
 
-		print(f'MC: {i}/{mc}')
+		print(f'MC: {i+1}/{mc}')
 
+	print(f'Labels previstos: {filtered_result}\nLabels reais: {ref}')
+		
 	mean_ari = np.mean(ari_scores)
 	mean_nmi = np.mean(nmi_scores)
 	mean_silhouette = np.mean(silhouette_scores)
@@ -134,7 +136,7 @@ def experiment(indexData, mc, nRep, nVar):
 	print(f'Média Silhouette: {mean_silhouette}')
 	print(f'Média Davies-Bouldin: {mean_db}')
 
-	data_info = (f'\nDataset: {dataName} | N_samples: {len(dataset)} | N_variaveis: {len(dataset[0])} | N_clusters: {nClusters}\nMC: {mc} | MFCM_Rep: {nRep} | Variaveis cortadas: {nVar}\n')
+	data_info = (f'\nDataset: {dataName} | N_samples: {len(dataset)} | N_variaveis: {len(dataset[0])} | N_clusters: {nClusters}\nMetodo: {method} | MC: {mc} | MFCM_Rep: {nRep} | Variaveis cortadas: {nVar}\n')
 	metrics_info = (f'Resultados do filtro:\nARI: {mean_ari}\nNMI: {mean_nmi}\nSilhoutte: {mean_silhouette}\nDB: {mean_db}\n')
 	parameters_info = (f'Parametros de distribuicao do dataset:\n{parameters}\n')
 
@@ -210,11 +212,10 @@ def atualizaTxt(nome, lista):
 	arquivo.close()
 
 if __name__ == "__main__":
-	mc = 10
+	mc = 50
 	nRep = 50
 	indexData = 22
 	numVar = 1
 
-	result, ref, centers = experiment(indexData, mc, nRep, numVar)
-
-	# plot_results(plot, ref, raw_name, (raw_time, filtered_time), 0, filtered_data, dataset, datasetName)
+	result, ref, centers = experiment(indexData, mc, nRep, numVar, 'mean')
+	result, ref, centers = experiment(indexData, mc, nRep, numVar, 'var')

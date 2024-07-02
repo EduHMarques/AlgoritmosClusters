@@ -30,6 +30,23 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 
 		return [dataset_unlabeled, dataset_ref, nClusters, "Heart Statlog Dataset"]
+	elif id == 6:
+		# Ionosphere
+		path = os.path.join(current_dir, "datasets/ionosphere.data")
+		dataset = pd.read_csv(path, sep=",", header=None)
+		dataset_ref = [0 if x == 'g' else 1 for x in dataset.iloc[:,-1].tolist()]
+		
+		columns = dataset.columns[[-1]]
+		dataset_unlabeled = dataset.drop(columns, axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+
+		nClusters = 2
+		
+		# dataset_unlabeled = normalize(dataset_unlabeled)		# Normalização está quebrando o dataset
+
+		print(dataset_unlabeled)
+
+		return [dataset_unlabeled, dataset_ref, nClusters, "Ionosphere Dataset"]
 	elif id == 7:
 		# Liver Disorders
 		path = os.path.join(current_dir, "datasets/liver-disorders.data")
@@ -62,6 +79,22 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 
 		return [dataset_unlabeled, dataset_ref, nClusters, "Lymphography Dataset"]
+	elif id == 10:
+		# Monk's Problem
+		path = os.path.join(current_dir, "datasets/monks-1.data")
+		dataset = pd.read_csv(path, sep=" ", header=None)
+		dataset_ref = dataset.iloc[:,0].tolist()
+		
+		columns = dataset.columns[[0, -1]]
+
+		dataset_unlabeled = dataset.drop(columns, axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+
+		nClusters = 2
+		
+		dataset_unlabeled = normalize(dataset_unlabeled)
+
+		return [dataset_unlabeled, dataset_ref, nClusters, "Monks Problem Dataset"]
 	elif id == 11:
 		# Sonar
 		path = os.path.join(current_dir, "datasets/sonar.data")
@@ -95,7 +128,7 @@ def selectDataset(id):
 	elif id == 14:
 		# Wine
 
-		path = os.path.join(current_dir, "AlgoritmosClusters/datasets/wine.txt")
+		path = os.path.join(current_dir, "datasets/wine.txt")
 		dataset = pd.read_csv(path, sep=",", header=None)
 		dataset_ref = dataset.iloc[:,0].tolist()
 		
@@ -109,7 +142,23 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 
 		return [dataset_unlabeled, dataset_ref, nClusters, "Wine Dataset"]
-	if id == 16:
+	elif id == 15:
+		# Zoo
+		path = os.path.join(current_dir, "datasets/zoo.data")
+		dataset = pd.read_csv(path, sep=",", header=None)
+		dataset_ref = [x - 1 for x in dataset.iloc[:,-1].tolist()]
+		
+		columns = dataset.columns[[0, -1]]
+
+		dataset_unlabeled = dataset.drop(columns, axis=1)
+		dataset_unlabeled = dataset_unlabeled.to_numpy()
+
+		nClusters = 7
+		
+		dataset_unlabeled = normalize(dataset_unlabeled)
+
+		return [dataset_unlabeled, dataset_ref, nClusters, "Zoo Dataset"]
+	elif id == 16:
 		# Iris
 		
 		path = os.path.join(current_dir, "datasets/iris.txt")

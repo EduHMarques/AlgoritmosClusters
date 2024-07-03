@@ -45,6 +45,41 @@ def execute(nRep, dataset, centersAll, exec_time):
 	
 	return dict
 
+def exec_mfcm(indexData, mc, nRep):
+
+	## Inicializando variáveis
+	exec_time = 0
+	result = {}
+	Jmin = 2147483647
+	centers = 0
+
+	## Monte Carlo
+	for i in range(mc):
+		SEED = int(time.time())
+		np.random.seed(SEED)
+		random.seed(SEED)
+
+		synthetic = selectDataset(indexData)
+		dataset = synthetic[0]
+		ref = synthetic[1]
+		nClusters = synthetic[2]
+		dataName = synthetic[3]
+
+		centersMC = np.zeros((nRep, nClusters))
+
+		for c in range(nRep):
+			centersMC[c] = random.sample(range(1, len(dataset)), nClusters)
+
+		clustering = execute(nRep, dataset, centersMC, exec_time)
+		exec_time += clustering['exec_time']
+
+		if clustering['Jmin'] < Jmin:
+			Jmin = clustering['Jmin']
+			result = clustering
+			centers = clustering['best_centers']
+
+	return (result, exec_time, centers)
+
 def exec_kmeans(K, nRep, dataset, centers):
 
 	bestResult = 0

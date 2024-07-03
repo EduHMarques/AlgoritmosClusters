@@ -5,6 +5,7 @@ from experiment import *
 from datasets import selectDataset
 from timeit import default_timer as timer
 
+
 def evaluate(indexData, pVar, mc, nRep, seed):
     ## Loading Data
 
@@ -37,12 +38,12 @@ def evaluate(indexData, pVar, mc, nRep, seed):
         numVar = int(p * n_features)
 
         start = timer()
-        dataset_varfilter = run_filter(1, dataset, result, ref, numVar, nclusters)
+        dataset_varfilter = run_filter('var', dataset, result, numVar, nclusters)
         end = timer()
         filvar_time = round(end - start, 4)
 
         start = timer()
-        dataset_sumfilter = run_filter(2, dataset, result, ref, numVar, nclusters)
+        dataset_sumfilter = run_filter('mean', dataset, result, numVar, nclusters)
         end = timer()
         filsum_time = round(end - start, 4)
 
@@ -65,11 +66,13 @@ def evaluate(indexData, pVar, mc, nRep, seed):
 
         # log += '\nFiltro por Variância:\n'
         results = list(map(lambda x: round(x, 8), calculate_accuracy(KMeansresultVar, ref, None, dataset_varfilter)))
-        MF_M_s += f'{results[0]},{results[1]},{results[2]},{results[3]}, Time: {round(mfcm_time, 4)}s (MFCM), {filvar_time}s\n'
+        # MF_M_s += f'{results[0]},{results[1]},{results[2]},{results[3]}, Time: {round(mfcm_time, 4)}s (MFCM), {filvar_time}s\n'
+        MF_M_s += f'{results[0]},{results[1]},{results[2]},{results[3]}\n'
 
         # log += '\nFiltro por Somatório:\n'
         results = list(map(lambda x: round(x, 8), calculate_accuracy(KMeansresultSum, ref, None, dataset_sumfilter)))
-        MF_V_s += f'{results[0]},{results[1]},{results[2]},{results[3]}, Time: {round(mfcm_time, 4)}s (MFCM), {filsum_time}s\n'
+        # MF_V_s += f'{results[0]},{results[1]},{results[2]},{results[3]}, Time: {round(mfcm_time, 4)}s (MFCM), {filsum_time}s\n'
+        MF_V_s += f'{results[0]},{results[1]},{results[2]},{results[3]}\n'
 
     log += "MF_M:\n"
     log += MF_M_s
@@ -86,7 +89,7 @@ if __name__ == '__main__':
     SEED = 42
     nRep = 100
     
-    datasets = [19]
+    datasets = [6,9]
     pVars = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
     for d in datasets:

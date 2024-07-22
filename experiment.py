@@ -99,9 +99,9 @@ def exec_kmeans(K, nRep, dataset, centers):
 def run_filter(method, dataset, result, numVar, numClusters):
 		
 	if method == 'mean':
-		resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
-	elif method == 'var':
 		resultado_filtro = sum_filter(dataset, result['bestM'], numClusters)
+	elif method == 'var':
+		resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
 	dataset = apply_filter(dataset, resultado_filtro, numVar, method)
 
 	return dataset
@@ -247,10 +247,10 @@ def atualizaTxt(nome, lista):
 	arquivo.close()
 
 if __name__ == "__main__":
-	mc = 50
+	mc = 5
 	nRep = 50
-	indexData = 22
+	indexData = 21
 	numVar = 1
 
-	result, ref, centers = experiment(indexData, mc, nRep, numVar, 'mean')
+	# result, ref, centers = experiment(indexData, mc, nRep, numVar, 'mean')
 	result, ref, centers = experiment(indexData, mc, nRep, numVar, 'var')

@@ -293,15 +293,15 @@ def selectDataset(id):
 		nClusters = 3 
 
 		mu = np.array([
-			[0, 0],
-			[15, 0],
-			[10, 25] 
-		])
+		[0, 0],
+		[0, 15],
+		[0, 60]])
+
 		sigma = np.array([
-			[1, 10],
-			[5, 1],
-			[3, 5] 
-			])
+		[10, 1],
+		[10, 1],
+		[10, 1]])
+
 		sigma = [np.diag(sigma[i]) for i in range(3)]
 
 		X_class1 = np.random.multivariate_normal(mu[0], sigma[0], size=int(n/nClusters))

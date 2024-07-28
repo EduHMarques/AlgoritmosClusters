@@ -10,8 +10,8 @@ x = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 y_labels = ['Adjusted Rand Index (ARI)', 'Normalized Mutual Information (NMI)', 'Silhouette Score', 'Davies-Bouldin Score (DB)']
 # datasets = ['Musk', 'Scene', 'Madelon', 'Hiva']
 # dataset_names = ['Musk (Version 1)', 'Scene', 'Madelon', 'Hiva Agnostic']
-dataset_names = ['Madelon', 'Hiva Agnostic']
-datasets = ['Madelon', 'Hiva']
+dataset_names = ['Lymphography']
+datasets = ['Lymphography']
 
 for j, dataset in enumerate(datasets):
     path = 'csv/' + dataset
@@ -31,7 +31,7 @@ for j, dataset in enumerate(datasets):
         axs[i].plot(x, mf_v.iloc[:, i], label='MF_V')
         axs[i].plot(x, maxvar.iloc[:, i], label='MaxVar')
         axs[i].plot(x, ls.iloc[:, i], label='LS')
-        axs[i].plot(x, mitra.iloc[:, i], label='Mitra')
+        axs[i].plot(x, mitra.iloc[:, i], label='FSFS')
         # axs[i].plot(x, dash.iloc[:, i], label='Dash')
         axs[i].plot(x, mcfs.iloc[:, i], label='MCFS')
         # axs[i].plot(x, mim.iloc[:, i], label='MIM')

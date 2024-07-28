@@ -2,9 +2,8 @@ import numpy as np
 from numba import jit, cuda
 
 @jit(target_backend='cuda')
-def maxVar(dataset, feature_percentage=0.25):
+def maxVar(dataset, n_selected_features):
     n_samples, n_features = dataset.shape
-    n_selected_features = int(feature_percentage * n_features)
     features = []
 
     for it in range(n_features):
@@ -14,4 +13,4 @@ def maxVar(dataset, feature_percentage=0.25):
     features = sorted(features, key=lambda x: x[1], reverse=True)
     features = [f[0] for f in features]
     
-    return features[0:n_selected_features]
+    return features[n_selected_features:]

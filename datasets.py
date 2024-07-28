@@ -221,7 +221,7 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 
 		return [dataset_unlabeled, dataset_ref, nClusters, "Balance Dataset"]
-	elif id == 17:
+	elif id == 19:
 		# Scene | OPENML: ID 312 | 300 features
 		path = os.path.join(current_dir, "datasets/scene.arff")
 		data = arff.loadarff(path)
@@ -239,7 +239,7 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 		
 		return [dataset_unlabeled, dataset_ref, nClusters, "Scene Dataset"]
-	elif id == 18:
+	elif id == 20:
 		# Madelon | OPENML: ID 1485 | 500 features
 		path = os.path.join(current_dir, "datasets/madelon.arff")
 		data = arff.loadarff(path)
@@ -255,7 +255,7 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 				
 		return [dataset_unlabeled, dataset_ref, nClusters, "Madelon Dataset"]
-	elif id == 19:
+	elif id == 21:
 		# Hiva Agnostic | OPENML: ID 1039 | 1000 features
 		path = os.path.join(current_dir, "datasets/hiva_agnostic.arff")
 		data = arff.loadarff(path)
@@ -271,7 +271,7 @@ def selectDataset(id):
 		dataset_unlabeled = normalize(dataset_unlabeled)
 		
 		return [dataset_unlabeled, dataset_ref, nClusters, "Hiva Agnostic Dataset"]
-	elif id == 20:
+	elif id == 22:
 		# Musk (Version 1) | UCI Machine Learning Repository | 165 features
 		path = os.path.join(current_dir, "datasets/musk1.data")
 		dataset = pd.read_csv(path, header=None)
@@ -288,7 +288,7 @@ def selectDataset(id):
 		# print("Dataset selecionado: Musk (Version 1)\n")
 		
 		return [dataset_unlabeled, dataset_ref, nClusters, "Musk (Version 1) Dataset"]
-	elif id == 21:
+	elif id == 23:
 		n = 210 
 		nClusters = 3 
 
@@ -326,7 +326,7 @@ def selectDataset(id):
 		parameters_str = f"mu = {mu_str}\n\nsigma = {sigma_str}"
 
 		return [synthetic, data_ref, nClusters, "Spherical Gaussian Distribution - 3 Classes", parameters_str]
-	elif id == 22:
+	elif id == 24:
 		n = 210				# Dataset Sintético Relação linear
 		nClusters = 3
 
@@ -359,7 +359,7 @@ def selectDataset(id):
 		parameters_str = f"mu = {mu_str}\n\nsigma = {sigma_str}"
 
 		return [synthetic, data_ref_, nClusters, "Relacao linear", parameters_str]
-	elif id == 23:
+	elif id == 25:
 		n = 200 
 		n_classes = 3
 

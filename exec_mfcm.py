@@ -74,9 +74,9 @@ def evaluate(indexData, pVar, mc, nRep, seed):
         # MF_V_s += f'{results[0]},{results[1]},{results[2]},{results[3]}, Time: {round(mfcm_time, 4)}s (MFCM), {filsum_time}s\n'
         MF_V_s += f'{results[0]},{results[1]},{results[2]},{results[3]}\n'
 
-    log += "MF_M:\n"
+    log += "MF_M:\nari,nmi,sillhouette,db\n"
     log += MF_M_s
-    log += "\nMF_V:\n"
+    log += "\nMF_V:\nari,nmi,sillhouette,db\n"
     log += MF_V_s
     log += '\n'
     
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     SEED = 42
     nRep = 100
     
-    datasets = [6,9]
+    datasets = [11,13,15]
     pVars = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
     for d in datasets:

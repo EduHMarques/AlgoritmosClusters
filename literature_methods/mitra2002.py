@@ -47,7 +47,8 @@ def feature_selection(data, k=3):
   k_neighbors = find_k_nearest_features(data, selected_feature[1], k)
 
   for f, i in k_neighbors:
-    R.remove(i)
+    if i in R:
+      R.remove(i)
 
   e = max(k_neighbors)[0]
 
@@ -55,7 +56,7 @@ def feature_selection(data, k=3):
     if k > len(R) - 1:
       k = len(R) - 1
 
-    if k == 1:
+    if k <= 1:
       break
 
     k -= 1

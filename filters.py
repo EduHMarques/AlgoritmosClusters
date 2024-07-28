@@ -57,9 +57,9 @@ def apply_filter(dataset, result, n, method=1):
 
     print(f'Resultado sem ordenação: {result}')
     if method == 'var': # Variância
-        result[0].sort(key=lambda k : k[0], reverse=True)
-    else: # Somatório
         result[0].sort(key=lambda k : k[0])
+    else: # Somatório
+        result[0].sort(key=lambda k : k[0], reverse=True)
 
     print(f'\n{result[1]}: ')
     for item in range(len(result[0])):

@@ -17,10 +17,9 @@ def get_k_nearest(dist, k, sample_index):
     )[:k] + [sample_index]
 
 
-def laplacian_score(df_arr, feature_percentage=0.25, label=None, **kwargs):
+def laplacian_score(df_arr, n_selected_features, label=None, **kwargs):
     kwargs.setdefault("k_nearest", 5)
     n_samples, n_features = df_arr.shape
-    n_selected_features = int(n_features * feature_percentage)
 
     '''
     Construct distance matrix, dist_matrix, using euclidean distance
@@ -64,4 +63,4 @@ def laplacian_score(df_arr, feature_percentage=0.25, label=None, **kwargs):
     score = sorted(score, key=lambda x: x[1], reverse=True)
     score = [i[0] for i in score]
 
-    return score[0:n_selected_features]
+    return score[n_selected_features:]

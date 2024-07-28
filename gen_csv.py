@@ -35,6 +35,13 @@ def evaluate(indexData, pVar, mc, nRep, seed):
     for p in pVar:
         numVar = int(p * n_features)
 
+        if numVar < 1:
+            numVar = 1
+        # elif numVar == n_features:
+        #     numVar -= 1
+
+        # print(f'numVar: {numVar}')
+
         ## Métodos propostos
 
         # start = timer()
@@ -50,14 +57,14 @@ def evaluate(indexData, pVar, mc, nRep, seed):
         ## MaxVar
 
         start = timer()
-        maxVar_features = maxVar(dataset, p)
+        maxVar_features = maxVar(dataset, numVar)
         end = timer()
         maxvar_time = end - start
 
         ## Laplacian Score:
 
         start = timer()
-        LS_features = laplacian_score(dataset, p)
+        LS_features = laplacian_score(dataset, numVar)
         end = timer()
         ls_time = end - start
 
@@ -152,7 +159,7 @@ if __name__ == '__main__':
     SEED = 42
     nRep = 10
     
-    datasets = [10]
+    datasets = [11,13,15]
     pVars = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
     for d in datasets:

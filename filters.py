@@ -59,7 +59,7 @@ def apply_filter(dataset, result, n, method=1):
     if method == 'var': # Variância
         result[0].sort(key=lambda k : k[0])
     else: # Somatório
-        result[0].sort(key=lambda k : k[0], reverse=True)
+        result[0].sort(key=lambda k : k[0])
 
     print(f'\n{result[1]}: ')
     for item in range(len(result[0])):

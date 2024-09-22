@@ -89,7 +89,7 @@ if __name__ == '__main__':
     SEED = 42
     nRep = 100
     
-    datasets = [22,19,20]
+    datasets = [21]
     pVars = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
     for d in datasets:

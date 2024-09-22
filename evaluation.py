@@ -34,10 +34,11 @@ def evaluate(indexData, pVar, mc, nRep, seed):
     # result, mfcm_time, centers = exec_mfcm(indexData, mc, nRep)
     # print('MFCM executado.\n')
 
-    log += '\nRESULTS:\n'
+    log += '\n\nRESULTS:\n\n'
+    log += "ari,nmi,sillhouette,db\n"
 
     for p in pVar:
-        print(f'Pvar: {p}\n')
+        # print(f'Pvar: {p}\n')
         numVar = int(p * n_features)
 
         ## Métodos propostos
@@ -54,24 +55,24 @@ def evaluate(indexData, pVar, mc, nRep, seed):
 
         ## MaxVar
 
-        start = timer()
-        maxVar_features = maxVar(dataset, p)
-        end = timer()
-        maxvar_time = end - start
-        print('MaxVar executado.')
+        # start = timer()
+        # maxVar_features = maxVar(dataset, p)
+        # end = timer()
+        # maxvar_time = end - start
+        # print('MaxVar executado.')
 
         ## Laplacian Score:
 
-        start = timer()
-        LS_features = laplacian_score(dataset, p)
-        end = timer()
-        ls_time = end - start
-        print('LS executado.')
+        # start = timer()
+        # LS_features = laplacian_score(dataset, p)
+        # end = timer()
+        # ls_time = end - start
+        # print('LS executado.')
 
         ## Dash2002
 
         # threshold = 0.5 * n_features
-        threshold = numVar
+        # threshold = numVar
         # start = timer()
 
         # model = Dash2002(dataset, threshold)
@@ -87,18 +88,18 @@ def evaluate(indexData, pVar, mc, nRep, seed):
 
         ## Mitra2002
 
-        start = timer()
-        mitra_features = feature_selection(dataset, k=int(threshold))
-        # log += (f"Variáveis selecionadas: {mitra_features}")
-        end = timer()
-        mitra_time = end - start
+        # start = timer()
+        # mitra_features = feature_selection(dataset, k=int(threshold))
+        # # log += (f"Variáveis selecionadas: {mitra_features}")
+        # end = timer()
+        # mitra_time = end - start
 
-        ## Feature selection
-        X_maxvar = dataset[:, np.array(maxVar_features, dtype='int32')]
-        X_LS = dataset[:, LS_features]
-        #X_dash = dataset[:, dash_features]
-        X_mitra = dataset[:, mitra_features]
-        print('Mitra2002 executado.')
+        # ## Feature selection
+        # X_maxvar = dataset[:, np.array(maxVar_features, dtype='int32')]
+        # X_LS = dataset[:, LS_features]
+        # #X_dash = dataset[:, dash_features]
+        # X_mitra = dataset[:, mitra_features]
+        # print('Mitra2002 executado.')
 
         ## K Means
         K = nclusters
@@ -115,31 +116,29 @@ def evaluate(indexData, pVar, mc, nRep, seed):
         # KMeansresultSum.fit(dataset_sumfilter)
         # KMeansresultSum = KMeansresultSum.labels_
 
-        maxvar_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
-        maxvar_Kmeans.fit(X_maxvar)
-        y_pred0 = maxvar_Kmeans.labels_
+        # maxvar_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
+        # maxvar_Kmeans.fit(X_maxvar)
+        # y_pred0 = maxvar_Kmeans.labels_
 
-        LS_KMeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
-        LS_KMeans.fit(X_LS)
-        y_pred1 = LS_KMeans.labels_
+        # LS_KMeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
+        # LS_KMeans.fit(X_LS)
+        # y_pred1 = LS_KMeans.labels_
 
-        mitra_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
-        mitra_Kmeans.fit(X_mitra)
-        y_pred2 = mitra_Kmeans.labels_
+        # mitra_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
+        # mitra_Kmeans.fit(X_mitra)
+        # y_pred2 = mitra_Kmeans.labels_
 
         # dash_Kmeans = sklearnKMeans(n_clusters=K, random_state=seed, n_init=10)
         # dash_Kmeans.fit(X_dash)
         # y_pred3 = dash_Kmeans.labels_
 
-        print('KMeans executado.')
+        # print('KMeans executado.')
 
         ## Metrics
 
-        log += f'\n{p*100}% OF FEATURES:\n\n'
-
-        log += 'KMeans sem filtro:\n'
+        # log += 'KMeans sem filtro:\n'
         results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred_og, ref, None, dataset)))
-        log += (f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}\n')
+        log += (f'{results[0]},{results[1]},{results[2]},{results[3]}\n')
 
         # log += '\nFiltro por Variância:\n'
         # results = list(map(lambda x: round(x, 8), calculate_accuracy(KMeansresultVar, ref, None, dataset_varfilter)))
@@ -149,17 +148,17 @@ def evaluate(indexData, pVar, mc, nRep, seed):
         # results = list(map(lambda x: round(x, 8), calculate_accuracy(KMeansresultSum, ref, None, dataset_sumfilter)))
         # log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(mfcm_time, 4)}s (MFCM), {filsum_time}s\n'
 
-        log += '\nMaxVar:\n'
-        results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred0, ref, None, X_maxvar)))
-        log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(maxvar_time, 4)}s\n'
+        # log += '\nMaxVar:\n'
+        # results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred0, ref, None, X_maxvar)))
+        # log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(maxvar_time, 4)}s\n'
 
-        log += '\nLS:\n'
-        results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred1, ref, None, X_LS)))
-        log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(ls_time, 4)}s\n'
+        # log += '\nLS:\n'
+        # results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred1, ref, None, X_LS)))
+        # log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(ls_time, 4)}s\n'
 
-        log += '\nMitra2002:\n'
-        results = list(map(lambda x: round(x, 8),calculate_accuracy(y_pred2, ref, None, X_mitra)))
-        log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(mitra_time, 4)}s\n'
+        # log += '\nMitra2002:\n'
+        # results = list(map(lambda x: round(x, 8),calculate_accuracy(y_pred2, ref, None, X_mitra)))
+        # log += f'ARI: {results[0]}  NMI: {results[1]}%  Silhouette: {results[2]}%  DB: {results[3]}  Time: {round(mitra_time, 4)}s\n'
 
         # log += '\nDash2002:\n'
         # results = list(map(lambda x: round(x, 8), calculate_accuracy(y_pred3, ref, None, X_dash)))
@@ -175,13 +174,13 @@ if __name__ == '__main__':
     SEED = 42
     nRep = 10
     
-    datasets = [19]
+    datasets = [19, 20, 21]
     pVars = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
     for d in datasets:
         log = evaluate(d, pVars, 1, nRep, SEED)
         print(log + '\n')
-        log_file.write(log)
+        # log_file.write(log)
 
     print(f"\n{'-'*30}> Done <{'-'*30}")
     log_file.close()

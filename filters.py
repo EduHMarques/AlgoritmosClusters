@@ -19,7 +19,7 @@ def sum_filter(data, U, nClusters):
             aTotal.append(a)
 
         aTotal = np.mean(aTotal)
-        aTotal = round(aTotal * 100, 2)
+        aTotal = round(aTotal, 5)
         V.append((aTotal, i))
     
     return (V, 'Filtro por Somatório')
@@ -47,7 +47,7 @@ def variance_filter(data, U, nClusters):
         # print(aTotal)
         media = np.mean(aTotal)
 
-        V.append((round(media * 100, 5), i))
+        V.append((round(media*100, 5), i))
     
     return (V, 'Filtro por Variância')
 

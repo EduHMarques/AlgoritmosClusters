@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.io import arff
 from sklearn.preprocessing import StandardScaler
+from PIL import Image
 
 current_dir = os.getcwd()
 
@@ -382,6 +383,26 @@ def selectDataset(id):
 		data_ref = np.concatenate((np.repeat(1, n // n_classes), np.repeat(2, n // n_classes), np.repeat(3, n // n_classes)))
 
 		return [synthetic, data_ref, n_classes, "Relacao Exponencial"]
+	elif id == 26:
+		# AT&T - Image dataset
+		image_folder = "datasets/att-faces/"
+		images_per_subject = 10
+		num_subjects = 40
+
+		def load_images(image_folder):
+			data = []
+			for subject in range(1, num_subjects + 1):
+				subject_folder = os.path.join(image_folder, f"s{subject}")
+				for img_num in range(1, images_per_subject + 1):
+					img_path = os.path.join(subject_folder, f"{img_num}.pgm")
+					img = Image.open(img_path).convert("L")
+					img_array = np.array(img).flatten()  # Flatten para criar um vetor unidimensional
+					data.append(img_array)
+			return np.array(data)
+
+		dataset = load_images(image_folder)
+
+		return [dataset, "AT&T Faces Dataset"]
 	
 def normalize(dataset):
 	nRows = dataset.shape[0]

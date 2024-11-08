@@ -15,7 +15,7 @@ def sum_filter(data, U, nClusters):
                 a += u
         
             a /= nObj # Relevância em relação ao cluster j
-            print(f'a: {a}| cluster: {j} | variável: {i}')
+            # print(f'a: {a}| cluster: {j} | variável: {i}')
             aTotal.append(a)
 
         aTotal = np.mean(aTotal)
@@ -54,7 +54,6 @@ def variance_filter(data, U, nClusters):
 
 def apply_filter(dataset, result, n, method=1):
 
-
     print(f'Resultado sem ordenação: {result}')
     if method == 'var': # Variância
         result[0].sort(key=lambda k : k[0], reverse=True)
@@ -71,5 +70,22 @@ def apply_filter(dataset, result, n, method=1):
     print("\nVariáveis deletadas:")
     for var in listaCorte:
         print(f"Variável {var}")
+        
+    return dataset
+
+def apply_image_filter(dataset, result, n_var, method):
+    if method == 'var_image':
+        result[0].sort(key=lambda k : k[0], reverse=True)
+    else:
+        result[0].sort(key=lambda k : k[0])
+
+    print(f'\n{result[1]}: ')
+    # for item in range(len(result[0])):
+    #     print(f'Variável {result[0][item][1]}: {result[0][item][0]}')
+
+    listaCorte = [result[0][i][1] for i in range(n_var)]
+
+    for var in listaCorte:
+        dataset[:, var] = 0
         
     return dataset

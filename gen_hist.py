@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scienceplots
 import ast  # Para converter as strings em listas de números
 from sklearn.cluster import KMeans as sklearnKMeans
 from experiment import *
@@ -7,24 +8,33 @@ from filters import *
 from datasets import selectDataset
 from timeit import default_timer as timer
 
-def evaluate(indexData, mc, nRep, seed, mf_m_line, mf_v_line):
+plt.style.use(['science','ieee'])
+plt.rcParams.update({
+    'font.size': 14,
+    'axes.titlesize': 16,
+    'axes.labelsize': 14,
+    'xtick.labelsize': 12,
+    'ytick.labelsize': 12,
+    'legend.fontsize': 12,
+})
+
+def evaluate(num_bins, mf_m_line, mf_v_line):
     ## Plotagem do histograma
-    num_bins = 10
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 6), dpi=100)
 
     plt.subplot(1, 2, 1)
     plt.hist(mf_m_line, bins=num_bins, color='blue', alpha=0.7)
-    plt.xlabel('Relevância')
-    plt.ylabel('Frequência')
-    plt.title(f'MF_M')
+    plt.xlabel('Relevance')
+    plt.ylabel('Frequency')
+    plt.title(f'MF-M')
 
     plt.subplot(1, 2, 2)
     plt.hist(mf_v_line, bins=num_bins, color='green', alpha=0.7)
-    plt.xlabel('Relevância')
-    plt.ylabel('Frequência')
-    plt.title(f'MF_V')
+    plt.xlabel('Relevance')
+    plt.ylabel('Frequency')
+    plt.title(f'MF-V')
 
-    plt.tight_layout()
+    plt.tight_layout(pad=2.0)
     plt.show()
 
 
@@ -47,8 +57,10 @@ if __name__ == '__main__':
         mf_v_line = ast.literal_eval(mf_v_lines[i].strip())
         
         # Imprimir as listas convertidas para garantir que são numéricas
-        print(mf_m_line)
-        print(mf_v_line)
+        n_bins = len(mf_m_line) ** (1/2)
+        n_bins = int(n_bins)
+        print(n_bins)
+        # print(len(mf_v_line))
 
         # Executando a função evaluate com as listas convertidas
-        evaluate(datasets[0], mc, nRep, SEED, mf_m_line, mf_v_line)
+        evaluate(n_bins, mf_m_line, mf_v_line)

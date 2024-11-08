@@ -23,7 +23,7 @@ def execute(nRep, dataset, centersAll, exec_time):
 	best_centers = 0
 
 	for r in range(nRep):
-		# print(f'Rep: {r+1}/{nRep}')
+		print(f'Rep: {r+1}/{nRep}')
 		centers = list(map(int, centersAll[r,].tolist()))
 
 		resp = MFCM(dataset, centers, 2)
@@ -102,6 +102,14 @@ def run_filter(method, dataset, result, numVar, numClusters):
 		resultado_filtro = sum_filter(dataset, result['bestM'], numClusters)
 	elif method == 'var':
 		resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
+	elif method == 'mean_image':
+		resultado_filtro = sum_filter(dataset, result['bestM'], numClusters)
+		dataset = apply_image_filter(dataset, resultado_filtro, numVar, method)
+		return dataset
+	elif method == 'var_image':
+		resultado_filtro = variance_filter(dataset, result['bestM'], numClusters)
+		dataset = apply_image_filter(dataset, resultado_filtro, numVar, method)
+		return dataset
 	dataset = apply_filter(dataset, resultado_filtro, numVar, method)
 
 	return dataset
@@ -133,7 +141,7 @@ def experiment(indexData, mc, nRep, nVar, method):
 		ref = synthetic[1]
 		nClusters = synthetic[2]
 		dataName = synthetic[3]
-		parameters = synthetic[4]
+		# parameters = synthetic[4]
 
 		i == 0 and print(f'Dataset escolhido: {dataName}')
 
@@ -173,11 +181,11 @@ def experiment(indexData, mc, nRep, nVar, method):
 
 	data_info = (f'\nDataset: {dataName} | N_samples: {len(dataset)} | N_variaveis: {len(dataset[0])} | N_clusters: {nClusters}\nMetodo: {method} | MC: {mc} | MFCM_Rep: {nRep} | Variaveis cortadas: {nVar}\n')
 	metrics_info = (f'Resultados do filtro:\nARI: {mean_ari}\nNMI: {mean_nmi}\nSilhoutte: {mean_silhouette}\nDB: {mean_db}\n')
-	parameters_info = (f'Parametros de distribuicao do dataset:\n{parameters}\n')
+	# parameters_info = (f'Parametros de distribuicao do dataset:\n{parameters}\n')
 
 	atualizaTxt(f'logs/{dataName}.txt', data_info)
 	atualizaTxt(f'logs/{dataName}.txt', metrics_info)
-	atualizaTxt(f'logs/{dataName}.txt', parameters_info)
+	# atualizaTxt(f'logs/{dataName}.txt', parameters_info)
 	atualizaTxt(f'logs/{dataName}.txt', '#################################################################')
 
 	# PLOT A SEGUIR:
@@ -248,9 +256,9 @@ def atualizaTxt(nome, lista):
 
 if __name__ == "__main__":
 	mc = 5
-	nRep = 50
-	indexData = 21
+	nRep = 5
+	indexData = 23
 	numVar = 1
 
 	# result, ref, centers = experiment(indexData, mc, nRep, numVar, 'mean')
-	result, ref, centers = experiment(indexData, mc, nRep, numVar, 'var')
+	result, ref, centers = experiment(indexData, mc, nRep, numVar, 'mean')

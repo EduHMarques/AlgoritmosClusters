@@ -1,28 +1,59 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import ast  # Para converter as strings em listas de números
-from sklearn.cluster import KMeans as sklearnKMeans
 from experiment import *
 from filters import *
 from datasets import selectDataset
-from timeit import default_timer as timer
+
+def skewness_coefficient(data):
+    """Calcula a assimetria dos dados."""
+    n = len(data)
+    mean = np.mean(data)
+    numerator = np.sum((data - mean) ** 3) / n
+    denominator = (np.sum((data - mean) ** 2) / n) ** (3 / 2)
+    return numerator / denominator
+
+def sigma_skewness(n):
+    """Calcula o desvio padrão da assimetria."""
+    return np.sqrt((6 * (n - 2)) / ((n + 1) * (n + 3)))
+
+def doane_bins(data):
+    """Calcula o número de bins ideal usando a fórmula de Doane."""
+    n = len(data)
+    if n < 2:
+        raise ValueError("A quantidade de dados deve ser maior que 1 para calcular o número de bins.")
+    
+    skewness = skewness_coefficient(data)
+    sigma = sigma_skewness(n)
+    bins = int(np.log2(n) + 1 + np.log2(1 + abs(skewness) / sigma))
+    
+    return bins
 
 def evaluate(indexData, mc, nRep, seed, mf_m_line, mf_v_line):
+    mf_m_line = np.sqrt(np.array(mf_m_line))
+    mf_v_line = np.sqrt(np.array(mf_v_line))
+
     ## Plotagem do histograma
-    num_bins = 10
+    num_bins_m = 10
+    num_bins_v = 10
     plt.figure(figsize=(10, 6))
 
     plt.subplot(1, 2, 1)
-    plt.hist(mf_m_line, bins=num_bins, color='blue', alpha=0.7)
+    plt.hist(mf_m_line, bins=num_bins_m, color='blue', alpha=0.7)
     plt.xlabel('Relevância')
     plt.ylabel('Frequência')
     plt.title(f'MF_M')
+    # x_ticks = np.linspace(min(mf_m_line), 0.1, num=7)
+    x_ticks = np.arange(min(mf_m_line), max(mf_m_line), 0.005)
+    plt.xticks(x_ticks)
 
     plt.subplot(1, 2, 2)
-    plt.hist(mf_v_line, bins=num_bins, color='green', alpha=0.7)
+    plt.hist(mf_v_line, bins=num_bins_v, color='green', alpha=0.7)
     plt.xlabel('Relevância')
     plt.ylabel('Frequência')
     plt.title(f'MF_V')
+    x_ticks = np.arange(min(mf_v_line), max(mf_v_line), 0.005)
+    plt.xticks(x_ticks)
 
     plt.tight_layout()
     plt.show()
